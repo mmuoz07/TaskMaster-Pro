@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>TaskMaster Pro</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+     <link rel="stylesheet" href="style.css">
+
+    <script src="javascript.js"></script>
+
+</head>
+</head>
+<body>
+    <div class="container">
+        
+        <div id="home" class="screen active">
+            <div class="header">
+                <h1>TaskMaster Pro</h1>
+            </div>
+            <p>Organiza tus tareas de manera eficiente y profesional</p>
+            <div class="menu-grid">
+                <button onclick="mostrar('login')">Iniciar Sesión</button>
+                <button class="secondary" onclick="mostrar('registro')">Registrarse</button>
+            </div>
+        </div>
+
+      
+        <div id="login" class="screen">
+            <h2>Iniciar Sesión</h2>
+            <input type="email" placeholder="Correo electrónico" id="loginEmail">
+            <input type="password" placeholder="Contraseña" id="loginPassword">
+            <button class="success" onclick="mostrar('menu')">Entrar</button>
+            <button class="secondary" onclick="mostrar('home')">Volver</button>
+        </div>
+
+       
+        <div id="registro" class="screen">
+            <h2>Crear Cuenta</h2>
+            <input type="text" placeholder="Nombre completo" id="registroNombre">
+            <input type="email" placeholder="Correo electrónico" id="registroEmail">
+            <input type="password" placeholder="Contraseña" id="registroPassword">
+            <button class="success" onclick="mostrar('menu')">Crear Cuenta</button>
+            <button class="secondary" onclick="mostrar('home')">Volver</button>
+        </div>
+
+        
+        <div id="menu" class="screen">
+            <div class="header">
+                <h1>TaskMaster Pro</h1>
+            </div>
+            <p>¡Bienvenido! ¿Qué quieres hacer hoy?</p>
+            <div class="menu-grid">
+                <button class="success" onclick="mostrar('nuevaTarea')">Añadir Tarea</button>
+                <button onclick="mostrar('pendientes')">Tareas Pendientes</button>
+                <button onclick="mostrar('completadas')">Tareas Completadas</button>
+                <button class="secondary" onclick="mostrar('home')">Cerrar Sesión</button>
+            </div>
+        </div>
+
+      
+        <div id="nuevaTarea" class="screen">
+            <h2>Nueva Tarea</h2>
+            <input type="text" placeholder="Describe tu tarea..." id="nuevaTarea">
+            <button onclick="toggleCalendario()">Seleccionar Fecha</button>
+            <div id="calendar2026" class="calendar-container" style="display: none;">
+                <div class="calendar-grid" id="calendarGrid"></div>
+            </div>
+            <button class="success" onclick="agregarTarea()">Guardar Tarea</button>
+            <button class="secondary" onclick="mostrar('menu')">Volver</button>
+        </div>
+
+       
+        <div id="pendientes" class="screen">
+            <h2>Tareas Pendientes</h2>
+            <div id="listaPendientes">
+                <p class="empty-message">No hay tareas pendientes</p>
+            </div>
+            <button class="secondary" onclick="mostrar('menu')">Volver</button>
+        </div>
+
+        <div id="completadas" class="screen">
+            <h2>Tareas Completadas</h2>
+            <div id="listaCompletadas">
+                <p class="empty-message">No hay tareas completadas</p>
+            </div>
+            <button class="secondary" onclick="mostrar('menu')">Volver</button>
+        </div>
+    </div>
+
+</body>
+</html>
