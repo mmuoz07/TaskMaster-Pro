@@ -11,83 +11,94 @@
     <script src="javascript.js"></script>
 
 </head>
-</head>
+
 <body>
     <div class="container">
-        
-        <div id="home" class="screen active">
-            <div class="header">
-                <h1>TaskMaster Pro</h1>
+        <section id="inicio" class="screen active">
+            <div class="brand">TASKMASTER<span>PRO</span></div>
+            <p>Gestión de tareas de alto rendimiento</p>
+            <div class="button-stack">
+                <button class="btn-primary" onclick="mostrar('login')">INICIAR SESIÓN</button>
+                <button class="btn-secondary" onclick="mostrar('registro')">REGISTRARSE</button>
             </div>
-            <p>Organiza tus tareas de manera eficiente y profesional</p>
-            <div class="menu-grid">
-                <button onclick="mostrar('login')">Iniciar Sesión</button>
-                <button class="secondary" onclick="mostrar('registro')">Registrarse</button>
-            </div>
-        </div>
+        </section>
 
-      
-        <div id="login" class="screen">
-            <h2>Iniciar Sesión</h2>
-            <input type="email" placeholder="Correo electrónico" id="loginEmail">
-            <input type="password" placeholder="Contraseña" id="loginPassword">
-            <button class="success" onclick="mostrar('menu')">Entrar</button>
-            <button class="secondary" onclick="mostrar('home')">Volver</button>
-        </div>
-
-       
-        <div id="registro" class="screen">
-            <h2>Crear Cuenta</h2>
-            <input type="text" placeholder="Nombre completo" id="registroNombre">
-            <input type="email" placeholder="Correo electrónico" id="registroEmail">
-            <input type="password" placeholder="Contraseña" id="registroPassword">
-            <button class="success" onclick="mostrar('menu')">Crear Cuenta</button>
-            <button class="secondary" onclick="mostrar('home')">Volver</button>
-        </div>
-
-        
-        <div id="menu" class="screen">
-            <div class="header">
-                <h1>TaskMaster Pro</h1>
+        <section id="login" class="screen">
+            <h2>Acceso de Usuario</h2>
+            <div class="form-group">
+                <input type="email" placeholder="Correo electrónico" id="emailLogin">
+                <input type="password" placeholder="Contraseña" id="passLogin">
             </div>
-            <p>¡Bienvenido! ¿Qué quieres hacer hoy?</p>
-            <div class="menu-grid">
-                <button class="success" onclick="mostrar('nuevaTarea')">Añadir Tarea</button>
-                <button onclick="mostrar('pendientes')">Tareas Pendientes</button>
-                <button onclick="mostrar('completadas')">Tareas Completadas</button>
-                <button class="secondary" onclick="mostrar('home')">Cerrar Sesión</button>
-            </div>
-        </div>
+            <button class="btn-primary" onclick="mostrar('menu')">ENTRAR</button>
+            <button class="btn-ghost" onclick="mostrar('inicio')">Volver al inicio</button>
+        </section>
 
-      
-        <div id="nuevaTarea" class="screen">
-            <h2>Nueva Tarea</h2>
-            <input type="text" placeholder="Describe tu tarea..." id="nuevaTarea">
-            <button onclick="toggleCalendario()">Seleccionar Fecha</button>
-            <div id="calendar2026" class="calendar-container" style="display: none;">
-                <div class="calendar-grid" id="calendarGrid"></div>
+        <section id="registro" class="screen">
+            <h2>Crear Perfil</h2>
+            <div class="form-group">
+                <input type="text" placeholder="Nombre completo">
+                <input type="email" placeholder="Correo electrónico">
+                <input type="password" placeholder="Contraseña">
             </div>
-            <button class="success" onclick="agregarTarea()">Guardar Tarea</button>
-            <button class="secondary" onclick="mostrar('menu')">Volver</button>
-        </div>
+            <button class="btn-primary" onclick="mostrar('menu')">REGISTRAR CUENTA</button>
+            <button class="btn-ghost" onclick="mostrar('inicio')">Volver al inicio</button>
+        </section>
 
-       
-        <div id="pendientes" class="screen">
-            <h2>Tareas Pendientes</h2>
-            <div id="listaPendientes">
-                <p class="empty-message">No hay tareas pendientes</p>
+        <section id="menu" class="screen">
+            <h2>Panel Principal</h2>
+            <div class="dashboard-grid">
+                <div class="dash-card" onclick="mostrar('nueva')">
+                    <h3>Añadir Tarea</h3>
+                    <small>Crear nueva entrada</small>
+                </div>
+                <div class="dash-card" onclick="mostrar('pendientes')">
+                    <h3>Pendientes</h3>
+                    <small>Ver tareas en curso</small>
+                </div>
+                <div class="dash-card" onclick="mostrar('completadas')">
+                    <h3>Completadas</h3>
+                    <small>Historial de éxito</small>
+                </div>
+                <div class="dash-card secondary" onclick="mostrar('inicio')">
+                    <h3>Salir</h3>
+                    <small>Cerrar sesión</small>
+                </div>
             </div>
-            <button class="secondary" onclick="mostrar('menu')">Volver</button>
-        </div>
+        </section>
 
-        <div id="completadas" class="screen">
-            <h2>Tareas Completadas</h2>
-            <div id="listaCompletadas">
-                <p class="empty-message">No hay tareas completadas</p>
+        <section id="nueva" class="screen">
+            <h2>Configurar Tarea</h2>
+            <input type="text" id="taskInput" placeholder="Nombre de la tarea...">
+            
+            <div class="calendar-selector">
+                <button class="btn-date" onclick="toggleCalendario()">
+                    FECHA: <span id="selectedDateText">Seleccionar en calendario</span>
+                </button>
+                <div id="calendarWrapper" class="calendar-drawer hidden">
+                    <div id="calendar2026Full" class="year-grid"></div>
+                </div>
             </div>
-            <button class="secondary" onclick="mostrar('menu')">Volver</button>
-        </div>
+
+            <button class="btn-primary success" onclick="agregarTarea()">GUARDAR TAREA</button>
+            <button class="btn-ghost" onclick="mostrar('menu')">Cancelar</button>
+        </section>
+
+        <section id="pendientes" class="screen">
+            <h2>Tareas en Curso</h2>
+            <div class="list-container">
+                <ul id="listaPendientes"></ul>
+            </div>
+            <button class="btn-ghost" onclick="mostrar('menu')">Volver al menú</button>
+        </section>
+
+        <section id="completadas" class="screen">
+            <h2>Registro de Completadas</h2>
+            <div class="list-container">
+                <ul id="listaCompletadas"></ul>
+            </div>
+            <button class="btn-ghost" onclick="mostrar('menu')">Volver al menú</button>
+        </section>
     </div>
-
+   
 </body>
 </html>
