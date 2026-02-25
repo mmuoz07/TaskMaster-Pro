@@ -21,7 +21,6 @@ body {
     padding: 20px;
 }
 
-
 .app-container {
     width: 100%;
     max-width: 1100px; 
@@ -40,9 +39,46 @@ body {
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* Estilos de Texto */
-.logo-text { font-size: 3rem; font-weight: 800; letter-spacing: -2px; margin-bottom: 1rem; }
+/* === CAMBIOS PARA CENTRAR HERO SECTION === */
+.hero-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    gap: 1.5rem;
+}
+
+.logo-text { 
+    font-size: 3rem; 
+    font-weight: 800; 
+    letter-spacing: -2px; 
+    margin-bottom: 1rem; 
+    text-align: center;
+}
+
 .logo-text span { color: var(--primary); }
+
+.hero-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    max-width: 500px;
+    text-align: center;
+    margin: 0;
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+/* ======================================== */
+
 h2 { font-size: 1.5rem; margin-bottom: 2rem; color: var(--text); }
 
 button { cursor: pointer; border: none; transition: 0.2s; border-radius: 8px; font-weight: 600; }
@@ -53,10 +89,9 @@ button { cursor: pointer; border: none; transition: 0.2s; border-radius: 8px; fo
 .btn-link { background: transparent; color: var(--text-muted); padding: 10px; margin-top: 10px; font-size: 14px; text-decoration: underline; }
 .btn-small-outline { padding: 8px 16px; font-size: 12px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); }
 
-
 .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 3 Columnas en escritorio */
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
     margin-top: 2rem;
 }
@@ -73,7 +108,6 @@ button { cursor: pointer; border: none; transition: 0.2s; border-radius: 8px; fo
 .nav-card h3 { margin-bottom: 10px; font-size: 1.2rem; }
 .nav-card p { color: var(--text-muted); font-size: 0.9rem; }
 
-/* Formularios */
 .input-group { margin-bottom: 20px; text-align: left; }
 .input-group label { display: block; margin-bottom: 8px; color: var(--text-muted); font-size: 13px; }
 .input-group input {
@@ -81,11 +115,9 @@ button { cursor: pointer; border: none; transition: 0.2s; border-radius: 8px; fo
     padding: 14px; border-radius: 8px; color: white; outline: none;
 }
 
-
 .content-layout { display: flex; gap: 40px; }
 .task-form { flex: 1; }
 .calendar-sidebar { flex: 1; background: #0f172a; padding: 20px; border-radius: 12px; border: 1px solid var(--border); }
-
 
 .year-view {
     max-height: 400px; overflow-y: auto; display: grid; grid-template-columns: 1fr; gap: 20px;
@@ -96,7 +128,6 @@ button { cursor: pointer; border: none; transition: 0.2s; border-radius: 8px; fo
 .day:hover { background: var(--primary); }
 .day.selected { background: var(--primary); font-weight: bold; }
 
-
 .modern-list { list-style: none; margin-top: 20px; }
 .modern-list li {
     background: #0f172a; padding: 20px; border-radius: 12px; margin-bottom: 12px;
@@ -106,22 +137,21 @@ button { cursor: pointer; border: none; transition: 0.2s; border-radius: 8px; fo
 .tachado { text-decoration: line-through; color: var(--text-muted); opacity: 0.6; }
 .tick-btn { width: 40px; height: 40px; background: var(--success); color: white; border-radius: 8px; }
 
-
 @media (max-width: 1024px) {
     .app-container { padding: 30px; }
-    .dashboard-grid { grid-template-columns: 1fr 1fr; } /* 2 Columnas */
+    .dashboard-grid { grid-template-columns: 1fr 1fr; }
     .content-layout { flex-direction: column; }
 }
-
 
 @media (max-width: 768px) {
     body { padding: 10px; }
     .app-container { padding: 20px; height: auto; min-height: 100vh; border-radius: 0; }
     .logo-text { font-size: 2rem; }
-    .dashboard-grid { grid-template-columns: 1fr; } /* 1 Columna */
+    .dashboard-grid { grid-template-columns: 1fr; }
     .nav-card { padding: 20px; }
     .modern-list li { flex-direction: column; align-items: flex-start; gap: 15px; }
     .tick-btn { width: 100%; }
+    .auth-buttons { flex-direction: column; align-items: center; }
 }
 
 .hidden { display: none; }
