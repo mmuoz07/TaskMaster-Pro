@@ -34,8 +34,15 @@ body {
     flex-direction: column;
 }
 
-.screen { display: none; height: 100%; flex-direction: column; }
-.screen.active { display: flex; animation: fadeIn 0.3s ease; }
+.screen { 
+    display: none; 
+    height: 100%; 
+    flex-direction: column;
+}
+.screen.active { 
+    display: flex; 
+    animation: fadeIn 0.3s ease; 
+}
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
@@ -47,15 +54,15 @@ body {
     justify-content: center;
     align-items: center;
     text-align: center;
-    padding: 20px;
-    gap: 1.5rem;
+    padding: 40px 20px;
+    gap: 2rem;
 }
 
 .logo-text { 
     font-size: 3rem; 
     font-weight: 800; 
     letter-spacing: -2px; 
-    margin-bottom: 1rem; 
+    margin-bottom: 0.5rem; 
     text-align: center;
 }
 
@@ -67,6 +74,7 @@ body {
     max-width: 500px;
     text-align: center;
     margin: 0;
+    line-height: 1.6;
 }
 
 .auth-buttons {
@@ -74,22 +82,26 @@ body {
     gap: 1rem;
     justify-content: center;
     flex-wrap: wrap;
-    margin-top: 1rem;
+    margin-top: 2rem;
 }
 
 .auth-buttons .btn-primary,
 .auth-buttons .btn-outline {
-    padding: 10px 24px;
+    padding: 12px 32px;
     font-size: 0.9rem;
-    min-width: 140px;
+    min-width: 160px;
 }
 
-/* === FORMULARIOS CENTRADOS === */
+/* === FORMULARIOS CENTRADOS VERTICAL Y HORIZONTALMENTE === */
+#login, #registro, #nueva {
+    justify-content: center;
+    align-items: center;
+}
+
 .form-card {
     width: 100%;
-    max-width: 400px;
-    margin: auto;
-    padding: 30px;
+    max-width: 420px;
+    padding: 40px;
     background: rgba(255,255,255,0.02);
     border-radius: 16px;
     border: 1px solid var(--border);
@@ -100,33 +112,32 @@ body {
 
 .form-card h2 {
     text-align: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
 }
 
 .form-card .input-group {
     width: 100%;
-    margin-bottom: 1rem;
+    margin-bottom: 1.2rem;
 }
 
 .form-card .input-group label {
     display: block;
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.5rem;
     color: var(--text-muted);
     font-size: 0.85rem;
     text-align: left;
 }
 
-/* INPUTS MÁS COMPACTOS - CAMBIOS PRINCIPALES */
 .form-card .input-group input {
     width: 100%;
     background: #0f172a;
     border: 1px solid var(--border);
-    padding: 8px 12px;
-    border-radius: 6px;
+    padding: 10px 14px;
+    border-radius: 8px;
     color: white;
     outline: none;
     font-size: 0.9rem;
-    height: 38px;
 }
 
 .form-card .input-group input:focus {
@@ -135,15 +146,14 @@ body {
 
 .form-card .btn-primary {
     width: 100%;
-    max-width: 280px;
-    margin: 0.5rem auto;
+    margin: 1rem auto 0.5rem;
     display: block;
     padding: 12px 24px;
 }
 
 .form-card .btn-link {
     text-align: center;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
     display: block;
 }
 
@@ -216,13 +226,23 @@ button { cursor: pointer; border: none; transition: 0.2s; border-radius: 8px; fo
 .nav-card h3 { margin-bottom: 10px; font-size: 1.2rem; }
 .nav-card p { color: var(--text-muted); font-size: 0.9rem; }
 
-/* === FORMULARIO DE TAREA AJUSTADO === */
-.content-layout { display: flex; gap: 40px; }
-.task-form { flex: 1; max-width: 500px; }
+/* === FORMULARIO DE TAREA CENTRADO === */
+.content-layout { 
+    display: flex; 
+    gap: 40px;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.task-form { 
+    max-width: 500px;
+    width: 100%;
+}
 
 .task-form h2 {
-    font-size: 1.3rem;
-    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
 }
 
 .task-form .input-group {
@@ -240,12 +260,11 @@ button { cursor: pointer; border: none; transition: 0.2s; border-radius: 8px; fo
     width: 100%;
     background: #0f172a;
     border: 1px solid var(--border);
-    padding: 8px 12px;
-    border-radius: 6px;
+    padding: 10px 14px;
+    border-radius: 8px;
     color: white;
     outline: none;
     font-size: 0.9rem;
-    height: 38px;
 }
 
 .task-form .input-group input:focus {
@@ -254,14 +273,14 @@ button { cursor: pointer; border: none; transition: 0.2s; border-radius: 8px; fo
 
 .date-selector {
     margin: 1.5rem 0;
-    padding: 12px;
+    padding: 15px;
     background: rgba(255,255,255,0.02);
     border-radius: 8px;
     border: 1px solid var(--border);
 }
 
 .date-selector p {
-    margin-bottom: 0.8rem;
+    margin-bottom: 1rem;
     color: var(--text-muted);
     font-size: 0.9rem;
 }
@@ -274,22 +293,27 @@ button { cursor: pointer; border: none; transition: 0.2s; border-radius: 8px; fo
 
 .actions {
     display: flex;
-    gap: 10px;
-    margin-top: 1.5rem;
+    gap: 15px;
+    margin-top: 2rem;
+    justify-content: center;
 }
 
 .actions .btn-primary {
     flex: 1;
-    padding: 10px 20px;
-    font-size: 0.85rem;
+    max-width: 300px;
+    padding: 12px 24px;
+    font-size: 0.9rem;
 }
 
 .actions .btn-link {
-    padding: 10px 20px;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
 }
 
 .calendar-sidebar { 
     flex: 1; 
+    max-width: 400px;
     background: #0f172a; 
     padding: 20px; 
     border-radius: 12px; 
@@ -382,6 +406,7 @@ button { cursor: pointer; border: none; transition: 0.2s; border-radius: 8px; fo
     body { padding: 10px; }
     .app-container { padding: 20px; height: auto; min-height: 100vh; border-radius: 0; }
     .logo-text { font-size: 2rem; }
+    .hero-section { gap: 1.5rem; padding: 20px 10px; }
     .dashboard-grid { grid-template-columns: 1fr; }
     .nav-card { padding: 20px; }
     .modern-list li { flex-direction: column; align-items: flex-start; gap: 15px; }
@@ -392,6 +417,7 @@ button { cursor: pointer; border: none; transition: 0.2s; border-radius: 8px; fo
         width: 100%;
         max-width: 280px;
     }
+    .form-card { padding: 30px 20px; }
 }
 
 .hidden { display: none; }
