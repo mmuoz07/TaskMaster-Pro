@@ -2,21 +2,17 @@ let tareasPendientes = [];
 let tareasCompletadas = [];
 let fechaSeleccionada = "";
 
-
 function mostrar(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
 
-    // Actualizar listas si entramos en las pantallas correspondientes
     if (id === 'pendientes') renderPendientes();
     if (id === 'completadas') renderCompletadas();
 }
 
-
 function toggleCalendar() {
     document.getElementById('calendarContainer').classList.toggle('hidden');
 }
-
 
 function agregarTarea() {
     const input = document.getElementById('taskInput');
@@ -35,7 +31,6 @@ function agregarTarea() {
 
     tareasPendientes.push(nuevaTarea);
 
-    // Limpiar para la siguiente tarea
     input.value = "";
     fechaSeleccionada = "";
     document.getElementById('selectedDateLabel').innerText = "Ninguna";
@@ -44,7 +39,6 @@ function agregarTarea() {
     alert("Tarea guardada correctamente.");
     mostrar('menu');
 }
-
 
 function renderPendientes() {
     const lista = document.getElementById('listaPendientes');
@@ -68,14 +62,12 @@ function renderPendientes() {
     });
 }
 
-
 function completarTarea(index) {
     const tarea = tareasPendientes.splice(index, 1)[0];
     tareasCompletadas.push(tarea);
     renderPendientes();
-    alert("¡Tarea completada!");
+    alert("Tarea completada.");
 }
-
 
 function renderCompletadas() {
     const lista = document.getElementById('listaCompletadas');
@@ -100,7 +92,6 @@ function renderCompletadas() {
     });
 }
 
-
 function initCalendar() {
     const container = document.getElementById('calendar2026');
     const meses = [
@@ -116,7 +107,6 @@ function initCalendar() {
         const daysGrid = document.createElement('div');
         daysGrid.className = "days-grid";
 
-       
         const diasEnMes = new Date(2026, mesIdx + 1, 0).getDate();
 
         for (let dia = 1; dia <= diasEnMes; dia++) {
@@ -124,7 +114,6 @@ function initCalendar() {
             daySpan.className = "day";
             daySpan.innerText = dia;
             daySpan.onclick = function() {
-               
                 document.querySelectorAll('.day').forEach(d => d.classList.remove('selected'));
                 this.classList.add('selected');
 
@@ -139,5 +128,5 @@ function initCalendar() {
     });
 }
 
-
 window.onload = initCalendar;
+
