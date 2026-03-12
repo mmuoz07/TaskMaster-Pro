@@ -3,21 +3,8 @@ let tareasCompletadas = [];
 let fechaSeleccionada = ""; 
 let fechaSQL = "";          
 
-// --- VALIDACIONES ---
-function esEmailValido(email) {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-}
-
-// --- FUNCIONES DE NAVEGACIÓN Y PROTECCIÓN ---
+// --- FUNCIONES DE NAVEGACIÓN ---
 function mostrar(id) {
-    // PROTECCIÓN: Si intenta ir a una pantalla que no sea login/inicio y no hay sesión, mandarlo a login
-    const usuarioLogueado = localStorage.getItem('usuarioNombre');
-    if (!usuarioLogueado && id !== 'inicio' && id !== 'login' && id !== 'registro') {
-        alert("Por favor, inicia sesión para acceder.");
-        id = 'login';
-    }
-
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     const target = document.getElementById(id);
     if (target) target.classList.add('active');
@@ -26,16 +13,11 @@ function mostrar(id) {
     if (id === 'completadas') renderCompletadas();
 }
 
-// --- LÓGICA DE REGISTRO CON VALIDACIÓN ---
+// --- REGISTRO DIRECTO ---
 async function ejecutarRegistro() {
-    const nombre = document.querySelector('input[placeholder="Nombre Completo"]').value.trim();
-    const email = document.querySelector('input[placeholder="Email Corporativo"]').value.trim();
+    const nombre = document.querySelector('input[placeholder="Nombre Completo"]').value;
+    const email = document.querySelector('input[placeholder="Email Corporativo"]').value;
     const pass = document.querySelector('input[placeholder="Contraseña"]').value;
-
-    // Validaciones
-    if (!nombre) return alert("El nombre es obligatorio.");
-    if (!esEmailValido(email)) return alert("Introduce un correo corporativo válido.");
-    if (pass.length < 6) return alert("La contraseña debe tener al menos 6 caracteres.");
 
     try {
         const res = await fetch('/api/auth/register', {
@@ -43,24 +25,21 @@ async function ejecutarRegistro() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ nombre_completo: nombre, email_corporativo: email, password: pass })
         });
-        const data = await res.json();
         if (res.ok) {
-            alert("✅ Registro exitoso. Ahora inicia sesión.");
+            alert("Usuario registrado.");
             mostrar('login');
         } else {
-            alert("❌ " + data.error);
+            alert("Error al registrar.");
         }
     } catch (err) {
-        alert("Error de conexión con el servidor.");
+        alert("Sin conexión con el servidor.");
     }
 }
 
-// --- LÓGICA DE LOGIN ---
+// --- LOGIN DIRECTO ---
 async function ejecutarLogin() {
-    const email = document.querySelector('input[placeholder="Correo Electrónico"]').value.trim();
+    const email = document.querySelector('input[placeholder="Correo Electrónico"]').value;
     const pass = document.querySelectorAll('input[placeholder="Contraseña"]')[0].value;
-
-    if (!esEmailValido(email)) return alert("Introduce un email válido.");
 
     try {
         const res = await fetch('/api/auth/login', {
@@ -70,28 +49,19 @@ async function ejecutarLogin() {
         });
         const data = await res.json();
         if (res.ok) {
-            // Guardar sesión en el navegador
-            localStorage.setItem('usuarioNombre', data.usuario);
-            alert("🔓 ¡Bienvenido, " + data.usuario + "!");
+            alert("Bienvenido " + data.usuario);
             cargarTareasDesdeDB();
             mostrar('menu');
         } else {
-            alert("❌ " + data.error);
+            alert("Credenciales incorrectas.");
         }
     } catch (err) {
-        alert("Error al intentar entrar.");
+        alert("Error de conexión.");
     }
 }
 
-function cerrarSesion() {
-    localStorage.removeItem('usuarioNombre');
-    location.reload();
-}
-
-// --- LOGICA DE BASE DE DATOS: CARGAR TAREAS ---
+// --- CARGAR TAREAS ---
 async function cargarTareasDesdeDB() {
-    if (!localStorage.getItem('usuarioNombre')) return; // No cargar si no hay sesión
-
     try {
         const res = await fetch('/api/tareas');
         const data = await res.json();
@@ -105,26 +75,23 @@ async function cargarTareasDesdeDB() {
         tareasCompletadas = data.filter(t => t.estado === 'Completada').map(t => ({
             id: t.id,
             titulo: t.descripcion,
-            fecha: "Completada"
+            fecha: "Hecha"
         }));
 
         renderPendientes();
     } catch (error) {
-        console.error("Error al sincronizar con la DB:", error);
+        console.log("Error al cargar datos");
     }
 }
 
-// --- LOGICA DE BASE DE DATOS: AGREGAR TAREA ---
+// --- AGREGAR TAREA ---
 async function agregarTarea() {
     const input = document.getElementById('taskInput');
-    const texto = input.value.trim();
+    const texto = input.value;
 
-    if (!texto) {
-        alert("Ingrese una descripción para la tarea.");
-        return;
-    }
+    if (!texto) return alert("Escribe algo.");
 
-    const nuevaTareaParaDB = {
+    const nuevaTarea = {
         descripcion: texto,
         fecha_vencimiento: fechaSQL || null
     };
@@ -133,7 +100,7 @@ async function agregarTarea() {
         const response = await fetch('/api/tareas', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(nuevaTareaParaDB)
+            body: JSON.stringify(nuevaTarea)
         });
 
         if (response.ok) {
@@ -141,53 +108,53 @@ async function agregarTarea() {
             input.value = "";
             fechaSeleccionada = "";
             fechaSQL = "";
-            document.getElementById('selectedDateText').innerText = "Seleccionar en calendario";
+            document.getElementById('selectedDateText').innerText = "Seleccionar fecha";
             document.getElementById('calendarWrapper').classList.add('hidden');
             mostrar('menu');
         }
     } catch (error) {
-        alert("Error de conexión con el servidor.");
+        alert("No se pudo guardar.");
     }
 }
 
-// --- RENDERIZADO DE LISTAS ---
+// --- RENDERIZADO ---
 function renderPendientes() {
     const lista = document.getElementById('listaPendientes');
     if (!lista) return;
-    lista.innerHTML = tareasPendientes.length ? "" : "<p style='text-align:center; margin-top:20px; color:#555;'>No hay tareas activas</p>";
+    lista.innerHTML = tareasPendientes.length ? "" : "<p>No hay tareas</p>";
 
     tareasPendientes.forEach((t, i) => {
         const li = document.createElement('li');
         li.innerHTML = `
             <div>
-                <div style="font-weight:600; font-size:15px;">${t.titulo}</div>
-                <div style="font-size:11px; color:#71717a; margin-top:4px;">${t.fecha}</div>
+                <strong>${t.titulo}</strong><br>
+                <small>${t.fecha}</small>
             </div>
-            <button class="check-btn" onclick="completarTarea(${i})">✓</button>
+            <button onclick="completarTarea(${i})">✓</button>
         `;
         lista.appendChild(li);
     });
+}
+
+function completarTarea(i) {
+    const movida = tareasPendientes.splice(i, 1)[0];
+    tareasCompletadas.push(movida);
+    renderPendientes();
 }
 
 function renderCompletadas() {
     const lista = document.getElementById('listaCompletadas');
     if (!lista) return;
-    lista.innerHTML = tareasCompletadas.length ? "" : "<p style='text-align:center; margin-top:20px; color:#555;'>Historial vacío</p>";
+    lista.innerHTML = tareasCompletadas.length ? "" : "<p>Vacío</p>";
 
     tareasCompletadas.forEach((t) => {
         const li = document.createElement('li');
-        li.style.borderLeftColor = "#52525b";
-        li.innerHTML = `
-            <div>
-                <div class="tachado" style="font-size:15px;">${t.titulo}</div>
-                <div style="font-size:11px; color:#52525b; margin-top:4px;">Completada</div>
-            </div>
-        `;
+        li.innerHTML = `<span>${t.titulo}</span>`;
         lista.appendChild(li);
     });
 }
 
-// --- CALENDARIO 2026 ---
+// --- CALENDARIO ---
 function toggleCalendario() {
     document.getElementById('calendarWrapper').classList.toggle('hidden');
 }
@@ -195,7 +162,6 @@ function toggleCalendario() {
 function generarCalendarioCompleto() {
     const container = document.getElementById('calendar2026Full');
     if (!container) return;
-    
     const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
     meses.forEach((mes, mesIndex) => {
@@ -215,8 +181,6 @@ function generarCalendarioCompleto() {
             day.className = "day";
             day.innerText = d;
             day.onclick = () => {
-                document.querySelectorAll('.day').forEach(el => el.classList.remove('selected'));
-                day.classList.add('selected');
                 fechaSeleccionada = `${d} ${mes}, 2026`;
                 const mesIso = String(mesIndex + 1).padStart(2, '0');
                 const diaIso = String(d).padStart(2, '0');
@@ -231,12 +195,6 @@ function generarCalendarioCompleto() {
     });
 }
 
-// --- INICIO ---
 window.onload = () => {
     generarCalendarioCompleto();
-    
-    // Si ya hay sesión guardada, cargar tareas
-    if (localStorage.getItem('usuarioNombre')) {
-        cargarTareasDesdeDB();
-    }
 };
