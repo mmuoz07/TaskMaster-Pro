@@ -1,10 +1,23 @@
 let tareasPendientes = [];
 let tareasCompletadas = [];
-let fechaSeleccionada = ""; // Formato para mostrar: "12 Marzo, 2026"
-let fechaSQL = "";          // Formato para la DB: "2026-03-12"
+let fechaSeleccionada = ""; 
+let fechaSQL = "";          
 
-// --- FUNCIONES DE NAVEGACIÓN ---
+// --- VALIDACIONES ---
+function esEmailValido(email) {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+}
+
+// --- FUNCIONES DE NAVEGACIÓN Y PROTECCIÓN ---
 function mostrar(id) {
+    // PROTECCIÓN: Si intenta ir a una pantalla que no sea login/inicio y no hay sesión, mandarlo a login
+    const usuarioLogueado = localStorage.getItem('usuarioNombre');
+    if (!usuarioLogueado && id !== 'inicio' && id !== 'login' && id !== 'registro') {
+        alert("Por favor, inicia sesión para acceder.");
+        id = 'login';
+    }
+
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     const target = document.getElementById(id);
     if (target) target.classList.add('active');
@@ -13,17 +26,76 @@ function mostrar(id) {
     if (id === 'completadas') renderCompletadas();
 }
 
-function toggleCalendario() {
-    document.getElementById('calendarWrapper').classList.toggle('hidden');
+// --- LÓGICA DE REGISTRO CON VALIDACIÓN ---
+async function ejecutarRegistro() {
+    const nombre = document.querySelector('input[placeholder="Nombre Completo"]').value.trim();
+    const email = document.querySelector('input[placeholder="Email Corporativo"]').value.trim();
+    const pass = document.querySelector('input[placeholder="Contraseña"]').value;
+
+    // Validaciones
+    if (!nombre) return alert("El nombre es obligatorio.");
+    if (!esEmailValido(email)) return alert("Introduce un correo corporativo válido.");
+    if (pass.length < 6) return alert("La contraseña debe tener al menos 6 caracteres.");
+
+    try {
+        const res = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nombre_completo: nombre, email_corporativo: email, password: pass })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert("✅ Registro exitoso. Ahora inicia sesión.");
+            mostrar('login');
+        } else {
+            alert("❌ " + data.error);
+        }
+    } catch (err) {
+        alert("Error de conexión con el servidor.");
+    }
+}
+
+// --- LÓGICA DE LOGIN ---
+async function ejecutarLogin() {
+    const email = document.querySelector('input[placeholder="Correo Electrónico"]').value.trim();
+    const pass = document.querySelectorAll('input[placeholder="Contraseña"]')[0].value;
+
+    if (!esEmailValido(email)) return alert("Introduce un email válido.");
+
+    try {
+        const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email_corporativo: email, password: pass })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            // Guardar sesión en el navegador
+            localStorage.setItem('usuarioNombre', data.usuario);
+            alert("🔓 ¡Bienvenido, " + data.usuario + "!");
+            cargarTareasDesdeDB();
+            mostrar('menu');
+        } else {
+            alert("❌ " + data.error);
+        }
+    } catch (err) {
+        alert("Error al intentar entrar.");
+    }
+}
+
+function cerrarSesion() {
+    localStorage.removeItem('usuarioNombre');
+    location.reload();
 }
 
 // --- LOGICA DE BASE DE DATOS: CARGAR TAREAS ---
 async function cargarTareasDesdeDB() {
+    if (!localStorage.getItem('usuarioNombre')) return; // No cargar si no hay sesión
+
     try {
         const res = await fetch('/api/tareas');
         const data = await res.json();
         
-        // Filtramos y limpiamos las listas locales con datos de la DB
         tareasPendientes = data.filter(t => t.estado === 'Pendiente').map(t => ({
             id: t.id,
             titulo: t.descripcion,
@@ -54,7 +126,7 @@ async function agregarTarea() {
 
     const nuevaTareaParaDB = {
         descripcion: texto,
-        fecha_vencimiento: fechaSQL || null // Enviamos el formato YYYY-MM-DD
+        fecha_vencimiento: fechaSQL || null
     };
 
     try {
@@ -65,20 +137,16 @@ async function agregarTarea() {
         });
 
         if (response.ok) {
-            // Si el servidor responde bien, recargamos la lista desde la DB
             await cargarTareasDesdeDB();
-
-            // Limpiar formulario UI
             input.value = "";
             fechaSeleccionada = "";
             fechaSQL = "";
             document.getElementById('selectedDateText').innerText = "Seleccionar en calendario";
             document.getElementById('calendarWrapper').classList.add('hidden');
-
             mostrar('menu');
         }
     } catch (error) {
-        alert("Error de conexión. La tarea se guardará solo localmente.");
+        alert("Error de conexión con el servidor.");
     }
 }
 
@@ -101,21 +169,6 @@ function renderPendientes() {
     });
 }
 
-async function completarTarea(i) {
-    const tarea = tareasPendientes[i];
-    
-    try {
-        // Opcional: Avisar al servidor que la tarea se completó
-        // await fetch(`/api/tareas/${tarea.id}/completar`, { method: 'PUT' });
-
-        const movida = tareasPendientes.splice(i, 1)[0];
-        tareasCompletadas.push(movida);
-        renderPendientes();
-    } catch (err) {
-        console.error("Error al completar");
-    }
-}
-
 function renderCompletadas() {
     const lista = document.getElementById('listaCompletadas');
     if (!lista) return;
@@ -134,20 +187,20 @@ function renderCompletadas() {
     });
 }
 
-// --- GENERADOR DE CALENDARIO 2026 ---
+// --- CALENDARIO 2026 ---
+function toggleCalendario() {
+    document.getElementById('calendarWrapper').classList.toggle('hidden');
+}
+
 function generarCalendarioCompleto() {
     const container = document.getElementById('calendar2026Full');
     if (!container) return;
     
-    const meses = [
-        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-    ];
+    const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
     meses.forEach((mes, mesIndex) => {
         const monthContainer = document.createElement('div');
         monthContainer.className = "month-container";
-        
         const title = document.createElement('div');
         title.className = "month-title";
         title.innerText = mes;
@@ -155,7 +208,6 @@ function generarCalendarioCompleto() {
 
         const daysGrid = document.createElement('div');
         daysGrid.className = "days-grid";
-
         const numDias = new Date(2026, mesIndex + 1, 0).getDate();
 
         for (let d = 1; d <= numDias; d++) {
@@ -165,15 +217,10 @@ function generarCalendarioCompleto() {
             day.onclick = () => {
                 document.querySelectorAll('.day').forEach(el => el.classList.remove('selected'));
                 day.classList.add('selected');
-                
-                // Guardamos para mostrar al usuario
                 fechaSeleccionada = `${d} ${mes}, 2026`;
-                
-                // Guardamos en formato ISO para la DB (Mes + 1 porque Enero es 0)
                 const mesIso = String(mesIndex + 1).padStart(2, '0');
                 const diaIso = String(d).padStart(2, '0');
                 fechaSQL = `2026-${mesIso}-${diaIso}`;
-
                 document.getElementById('selectedDateText').innerText = fechaSeleccionada;
                 toggleCalendario();
             };
@@ -187,5 +234,9 @@ function generarCalendarioCompleto() {
 // --- INICIO ---
 window.onload = () => {
     generarCalendarioCompleto();
-    cargarTareasDesdeDB(); // Carga las tareas de la base de datos al abrir la web
+    
+    // Si ya hay sesión guardada, cargar tareas
+    if (localStorage.getItem('usuarioNombre')) {
+        cargarTareasDesdeDB();
+    }
 };
