@@ -1,18 +1,36 @@
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+// 1. Importaciones de módulos
+const express = require('express');
+const path = require('path');
+require('dotenv').config(); // Carga el archivo .env
 
-exports.register = async (req, res) => {
-    const { email, password } = req.body;
+// 2. Importación de las Rutas
+const authRoutes = require('./routes/authRoutes');
+// const taskRoutes = require('./routes/taskRoutes'); // Descomenta cuando crees taskRoutes.js
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+const app = express();
 
-    res.json({ message: 'User registered', email });
-};
+// 3. Middlewares
+// Permite que el servidor entienda JSON (lo que envías desde el frontend)
+app.use(express.json());
+// Permite procesar datos de formularios normales
+app.use(express.urlencoded({ extended: true }));
+// Sirve tus archivos estáticos (HTML, CSS, JS de la carpeta raíz)
+app.use(express.static(path.join(__dirname, './')));
 
-exports.login = async (req, res) => {
-    const { email } = req.body;
+// 4. Uso de las Rutas (Endpoints API)
+app.use('/api/auth', authRoutes);
+// app.use('/api/tareas', taskRoutes); // Descomenta cuando lo tengas listo
 
-    const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+// 5. Ruta principal para cargar tu index.html
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
-    res.json({ token });
-};
+// 6. Configuración del Puerto y Arranque
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log('--------------------------------------------------');
+    console.log(`🚀 TaskMaster Pro: Servidor Online`);
+    console.log(`🌐 Acceso local: http://localhost:${PORT}`);
+    console.log('--------------------------------------------------');
+});
