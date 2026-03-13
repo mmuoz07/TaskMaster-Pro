@@ -448,4 +448,7 @@ button { cursor: pointer; border: none; transition: 0.2s; border-radius: 8px; fo
     .form-card { padding: 30px 20px; }
 }
 
-.hidden { display: none; }
+.hidden { 
+    display: none !important; 
+}
+
