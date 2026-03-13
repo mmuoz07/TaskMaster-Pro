@@ -5,10 +5,11 @@
     <title>TaskMaster Pro | Desktop Edition</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-      <script src="javascript.js"></script>
+    <script src="javascript.js"></script>
 </head>
 <body>
     <div class="app-container">
+        
         <section id="inicio" class="screen active">
             <div class="hero-section">
                 <h1 class="logo-text">TASKMASTER<span>PRO</span></h1>
@@ -31,7 +32,7 @@
                     <label>Contraseña</label>
                     <input type="password" id="passUser" placeholder="••••••••">
                 </div>
-                <button class="btn-primary full-width" onclick="mostrar('menu')">ENTRAR AL SISTEMA</button>
+                <button class="btn-primary full-width" onclick="ejecutarLogin()">ENTRAR AL SISTEMA</button>
                 <button class="btn-link" onclick="mostrar('inicio')">Volver al inicio</button>
             </div>
         </section>
@@ -41,17 +42,17 @@
                 <h2>Crear Nueva Cuenta</h2>
                 <div class="input-group">
                     <label>Nombre Completo</label>
-                    <input type="text" placeholder="Juan Pérez">
+                    <input type="text" id="regNombre" placeholder="Juan Pérez">
                 </div>
                 <div class="input-group">
                     <label>Email Corporativo</label>
-                    <input type="email" placeholder="juan@empresa.com">
+                    <input type="email" id="regEmail" placeholder="juan@empresa.com">
                 </div>
                 <div class="input-group">
                     <label>Contraseña</label>
-                    <input type="password" placeholder="••••••••">
+                    <input type="password" id="regPass" placeholder="••••••••">
                 </div>
-                <button class="btn-primary full-width" onclick="mostrar('menu')">FINALIZAR REGISTRO</button>
+                <button class="btn-primary full-width" onclick="ejecutarRegistro()">FINALIZAR REGISTRO</button>
                 <button class="btn-link" onclick="mostrar('inicio')">Volver al inicio</button>
             </div>
         </section>
@@ -121,7 +122,7 @@
                 <button class="btn-outline" onclick="mostrar('menu')">Volver al Menú</button>
             </div>
         </section>
+        
     </div>
-   
 </body>
 </html>
