@@ -158,10 +158,49 @@ function renderCompletadas() {
     });
 }
 
-// INICIALIZACIÓN
-window.onload = () => {
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("Página cargada. Iniciando calendario...");
     generarCalendarioCompleto();
-};
+});
 
+// Y asegúrate de que la función toggleCalendar sea esta:
+function toggleCalendar() { 
+    const cal = document.getElementById('calendarContainer');
+    if (cal) {
+        cal.classList.toggle('hidden');
+        // RE-GENERAR si el contenedor estaba vacío por error
+        if (document.getElementById('calendar2026').innerHTML === "") {
+            generarCalendarioCompleto();
+        }
+    }document.addEventListener('DOMContentLoaded', () => {
+    console.log("Página cargada. Iniciando calendario...");
+    generarCalendarioCompleto();
+});
 
+// Y asegúrate de que la función toggleCalendar sea esta:
+function toggleCalendar() { 
+    const cal = document.getElementById('calendarContainer');
+    if (cal) {
+        cal.classList.toggle('hidden');
+        // RE-GENERAR si el contenedor estaba vacío por error
+        if (document.getElementById('calendar2026').innerHTML === "") {
+            generarCalendarioCompleto();
+        }
+    }document.addEventListener('DOMContentLoaded', () => {
+    console.log("Página cargada. Iniciando calendario...");
+    generarCalendarioCompleto();
+});
+
+// Y asegúrate de que la función toggleCalendar sea esta:
+function toggleCalendar() { 
+    const cal = document.getElementById('calendarContainer');
+    if (cal) {
+        cal.classList.toggle('hidden');
+        // RE-GENERAR si el contenedor estaba vacío por error
+        if (document.getElementById('calendar2026').innerHTML === "") {
+            generarCalendarioCompleto();
+        }
+    }
+
+}
 
