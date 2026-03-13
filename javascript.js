@@ -12,24 +12,31 @@ function mostrar(id) {
     if (id === 'completadas') renderCompletadas();
 }
 
-// 2. FUNCIONES DEL CALENDARIO (CORREGIDAS)
+// 2. FUNCIONES DEL CALENDARIO
 function toggleCalendar() { 
     const cal = document.getElementById('calendarContainer');
-    cal.classList.toggle('hidden'); 
+    if (cal) {
+        cal.classList.toggle('hidden');
+        // Si al abrir está vacío, lo generamos
+        if (document.getElementById('calendar2026').innerHTML === "") {
+            generarCalendarioCompleto();
+        }
+    }
 }
 
 function generarCalendarioCompleto() {
-    const container = document.getElementById('calendar2026'); // Coincide con tu HTML
+    const container = document.getElementById('calendar2026'); 
     if (!container) return;
 
     const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-    container.innerHTML = ""; // Limpiar contenedor
+    container.innerHTML = ""; 
 
     meses.forEach((mes, mesIndex) => {
         const monthBox = document.createElement('div');
         monthBox.className = "month-box";
         
-        const title = document.createElement('<h4>');
+        // CORRECCIÓN: Etiqueta h4 correctamente definida
+        const title = document.createElement('h4');
         title.innerText = mes;
         monthBox.appendChild(title);
         
@@ -42,15 +49,15 @@ function generarCalendarioCompleto() {
             const day = document.createElement('div');
             day.className = "day"; 
             day.innerText = d;
-            day.onclick = () => {
+            day.onclick = (e) => {
+                e.stopPropagation();
                 fechaSeleccionada = `${d} de ${mes}, 2026`;
                 const mIso = String(mesIndex + 1).padStart(2, '0');
                 const dIso = String(d).padStart(2, '0');
                 fechaSQL = `2026-${mIso}-${dIso}`;
                 
-                // Cambiamos el texto en el ID correcto del HTML
                 document.getElementById('selectedDateLabel').innerText = fechaSeleccionada;
-                toggleCalendar(); // Se cierra al elegir fecha
+                toggleCalendar(); 
             };
             daysGrid.appendChild(day);
         }
@@ -59,11 +66,11 @@ function generarCalendarioCompleto() {
     });
 }
 
-// 3. LLAMADAS A LA API (Mantenemos tu lógica)
+// 3. LLAMADAS A LA API
 async function ejecutarRegistro() {
-    const nombre = document.querySelector('input[placeholder="Nombre Completo"]').value;
-    const email = document.querySelector('input[placeholder="Email Corporativo"]').value;
-    const pass = document.querySelector('input[placeholder="Contraseña"]').value;
+    const nombre = document.getElementById('regNombre')?.value || "";
+    const email = document.getElementById('regEmail')?.value || "";
+    const pass = document.getElementById('regPass')?.value || "";
 
     const res = await fetch('api.php?action=register', {
         method: 'POST',
@@ -158,49 +165,7 @@ function renderCompletadas() {
     });
 }
 
+// 5. INICIALIZACIÓN ÚNICA
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("Página cargada. Iniciando calendario...");
     generarCalendarioCompleto();
 });
-
-// Y asegúrate de que la función toggleCalendar sea esta:
-function toggleCalendar() { 
-    const cal = document.getElementById('calendarContainer');
-    if (cal) {
-        cal.classList.toggle('hidden');
-        // RE-GENERAR si el contenedor estaba vacío por error
-        if (document.getElementById('calendar2026').innerHTML === "") {
-            generarCalendarioCompleto();
-        }
-    }document.addEventListener('DOMContentLoaded', () => {
-    console.log("Página cargada. Iniciando calendario...");
-    generarCalendarioCompleto();
-});
-
-// Y asegúrate de que la función toggleCalendar sea esta:
-function toggleCalendar() { 
-    const cal = document.getElementById('calendarContainer');
-    if (cal) {
-        cal.classList.toggle('hidden');
-        // RE-GENERAR si el contenedor estaba vacío por error
-        if (document.getElementById('calendar2026').innerHTML === "") {
-            generarCalendarioCompleto();
-        }
-    }document.addEventListener('DOMContentLoaded', () => {
-    console.log("Página cargada. Iniciando calendario...");
-    generarCalendarioCompleto();
-});
-
-// Y asegúrate de que la función toggleCalendar sea esta:
-function toggleCalendar() { 
-    const cal = document.getElementById('calendarContainer');
-    if (cal) {
-        cal.classList.toggle('hidden');
-        // RE-GENERAR si el contenedor estaba vacío por error
-        if (document.getElementById('calendar2026').innerHTML === "") {
-            generarCalendarioCompleto();
-        }
-    }
-
-}
-
