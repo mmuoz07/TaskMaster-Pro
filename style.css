@@ -1,4 +1,4 @@
-a:root {
+:root {
 
     --primary: #2563eb;
 
@@ -903,3 +903,4 @@ button { cursor: pointer; border: none; transition: 0.2s; border-radius: 8px; fo
     display: none !important; 
 
 }
+
