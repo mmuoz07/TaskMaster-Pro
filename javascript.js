@@ -3,6 +3,7 @@ let tareasCompletadas = [];
 let fechaSeleccionada = ""; 
 let fechaSQL = "";          
 
+// 1. GESTIÓN DE PANTALLAS
 function mostrar(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     const target = document.getElementById(id);
@@ -11,8 +12,54 @@ function mostrar(id) {
     if (id === 'completadas') renderCompletadas();
 }
 
-// --- LLAMADAS A LA API PHP ---
+// 2. FUNCIONES DEL CALENDARIO (CORREGIDAS)
+function toggleCalendar() { 
+    const cal = document.getElementById('calendarContainer');
+    cal.classList.toggle('hidden'); 
+}
 
+function generarCalendarioCompleto() {
+    const container = document.getElementById('calendar2026'); // Coincide con tu HTML
+    if (!container) return;
+
+    const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    container.innerHTML = ""; // Limpiar contenedor
+
+    meses.forEach((mes, mesIndex) => {
+        const monthBox = document.createElement('div');
+        monthBox.className = "month-box";
+        
+        const title = document.createElement('<h4>');
+        title.innerText = mes;
+        monthBox.appendChild(title);
+        
+        const daysGrid = document.createElement('div');
+        daysGrid.className = "days-grid";
+        
+        const numDias = new Date(2026, mesIndex + 1, 0).getDate();
+        
+        for (let d = 1; d <= numDias; d++) {
+            const day = document.createElement('div');
+            day.className = "day"; 
+            day.innerText = d;
+            day.onclick = () => {
+                fechaSeleccionada = `${d} de ${mes}, 2026`;
+                const mIso = String(mesIndex + 1).padStart(2, '0');
+                const dIso = String(d).padStart(2, '0');
+                fechaSQL = `2026-${mIso}-${dIso}`;
+                
+                // Cambiamos el texto en el ID correcto del HTML
+                document.getElementById('selectedDateLabel').innerText = fechaSeleccionada;
+                toggleCalendar(); // Se cierra al elegir fecha
+            };
+            daysGrid.appendChild(day);
+        }
+        monthBox.appendChild(daysGrid);
+        container.appendChild(monthBox);
+    });
+}
+
+// 3. LLAMADAS A LA API (Mantenemos tu lógica)
 async function ejecutarRegistro() {
     const nombre = document.querySelector('input[placeholder="Nombre Completo"]').value;
     const email = document.querySelector('input[placeholder="Email Corporativo"]').value;
@@ -27,8 +74,8 @@ async function ejecutarRegistro() {
 }
 
 async function ejecutarLogin() {
-    const email = document.querySelector('input[placeholder="Correo Electrónico"]').value;
-    const pass = document.querySelectorAll('input[placeholder="Contraseña"]')[0].value;
+    const email = document.getElementById('emailUser').value;
+    const pass = document.getElementById('passUser').value;
 
     const res = await fetch('api.php?action=login', {
         method: 'POST',
@@ -36,8 +83,31 @@ async function ejecutarLogin() {
         body: JSON.stringify({ email_corporativo: email, password: pass })
     });
     const data = await res.json();
-    if (res.ok) { alert("Bienvenido " + data.usuario); cargarTareasDesdeDB(); mostrar('menu'); }
-    else { alert("Error en los datos."); }
+    if (res.ok) { 
+        alert("Bienvenido " + data.usuario); 
+        cargarTareasDesdeDB(); 
+        mostrar('menu'); 
+    } else { 
+        alert("Error en los datos."); 
+    }
+}
+
+async function agregarTarea() {
+    const input = document.getElementById('taskInput');
+    if (!input.value) return alert("Escribe la descripción de la tarea.");
+
+    const res = await fetch('api.php?action=tareas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ descripcion: input.value, fecha_vencimiento: fechaSQL })
+    });
+
+    if (res.ok) {
+        await cargarTareasDesdeDB();
+        input.value = "";
+        document.getElementById('selectedDateLabel').innerText = "Ninguna";
+        mostrar('menu');
+    }
 }
 
 async function cargarTareasDesdeDB() {
@@ -54,33 +124,19 @@ async function cargarTareasDesdeDB() {
     } catch (e) { console.log("Error al cargar"); }
 }
 
-async function agregarTarea() {
-    const input = document.getElementById('taskInput');
-    if (!input.value) return alert("Escribe algo.");
-
-    const res = await fetch('api.php?action=tareas', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ descripcion: input.value, fecha_vencimiento: fechaSQL })
-    });
-
-    if (res.ok) {
-        await cargarTareasDesdeDB();
-        input.value = "";
-        document.getElementById('selectedDateText').innerText = "Seleccionar fecha";
-        mostrar('menu');
-    }
-}
-
-// --- RENDER Y CALENDARIO (TUS FUNCIONES) ---
-
+// 4. RENDERING DE LISTAS
 function renderPendientes() {
     const lista = document.getElementById('listaPendientes');
     if (!lista) return;
-    lista.innerHTML = tareasPendientes.length ? "" : "<p>No hay tareas</p>";
+    lista.innerHTML = tareasPendientes.length ? "" : "<p>No hay tareas pendientes</p>";
     tareasPendientes.forEach((t, i) => {
         const li = document.createElement('li');
-        li.innerHTML = `<div><strong>${t.titulo}</strong><br><small>${t.fecha}</small></div><button onclick="completarTarea(${i})">✓</button>`;
+        li.innerHTML = `
+            <div>
+                <strong>${t.titulo}</strong><br>
+                <small>${t.fecha}</small>
+            </div>
+            <button class="tick-btn" onclick="completarTarea(${i})">✓</button>`;
         lista.appendChild(li);
     });
 }
@@ -94,7 +150,7 @@ function completarTarea(i) {
 function renderCompletadas() {
     const lista = document.getElementById('listaCompletadas');
     if (!lista) return;
-    lista.innerHTML = tareasCompletadas.length ? "" : "<p>Vacío</p>";
+    lista.innerHTML = tareasCompletadas.length ? "" : "<p>No hay tareas completadas</p>";
     tareasCompletadas.forEach(t => {
         const li = document.createElement('li');
         li.innerHTML = `<span>${t.titulo}</span>`;
@@ -102,37 +158,8 @@ function renderCompletadas() {
     });
 }
 
-function toggleCalendario() { document.getElementById('calendarWrapper').classList.toggle('hidden'); }
+// INICIALIZACIÓN
+window.onload = () => {
+    generarCalendarioCompleto();
+};
 
-function generarCalendarioCompleto() {
-    const container = document.getElementById('calendar2026Full');
-    if (!container) return;
-    const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-    meses.forEach((mes, mesIndex) => {
-        const monthContainer = document.createElement('div');
-        monthContainer.className = "month-container";
-        const title = document.createElement('div');
-        title.className = "month-title"; title.innerText = mes;
-        monthContainer.appendChild(title);
-        const daysGrid = document.createElement('div');
-        daysGrid.className = "days-grid";
-        const numDias = new Date(2026, mesIndex + 1, 0).getDate();
-        for (let d = 1; d <= numDias; d++) {
-            const day = document.createElement('div');
-            day.className = "day"; day.innerText = d;
-            day.onclick = () => {
-                fechaSeleccionada = `${d} ${mes}, 2026`;
-                const mIso = String(mesIndex + 1).padStart(2, '0');
-                const dIso = String(d).padStart(2, '0');
-                fechaSQL = `2026-${mIso}-${dIso}`;
-                document.getElementById('selectedDateText').innerText = fechaSeleccionada;
-                toggleCalendario();
-            };
-            daysGrid.appendChild(day);
-        }
-        monthContainer.appendChild(daysGrid);
-        container.appendChild(monthContainer);
-    });
-}
-
-window.onload = generarCalendarioCompleto;
