@@ -1,255 +1,237 @@
 <!DOCTYPE html>
-
 <html lang="es">
-
 <head>
-
     <meta charset="UTF-8">
-
     <title>TaskMaster Pro | Desktop Edition</title>
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <link rel="stylesheet" href="style.css">
-
     <script src="javascript.js"></script>
-
 </head>
-
 <body>
-
     <div class="app-container">
-
-        
-
         <section id="inicio" class="screen active">
-
             <div class="hero-section">
-
                 <h1 class="logo-text">TASKMASTER<span>PRO</span></h1>
-
                 <p class="hero-subtitle">Gestión de proyectos y tareas para entornos de alto rendimiento.</p>
-
                 <div class="auth-buttons">
-
                     <button class="btn-primary" onclick="mostrar('login')">INICIAR SESIÓN</button>
-
                     <button class="btn-outline" onclick="mostrar('registro')">REGISTRARSE</button>
-
                 </div>
-
             </div>
-
         </section>
-
-
-
         <section id="login" class="screen">
-
             <div class="form-card">
-
                 <h2>Acceso de Usuario</h2>
-
                 <div class="input-group">
-
                     <label>Correo Electrónico</label>
-
                     <input type="email" id="emailUser" placeholder="ejemplo@taskmaster.com">
-
                 </div>
-
                 <div class="input-group">
-
                     <label>Contraseña</label>
-
                     <input type="password" id="passUser" placeholder="••••••••">
-
                 </div>
-
                 <button class="btn-primary full-width" onclick="ejecutarLogin()">ENTRAR AL SISTEMA</button>
-
                 <button class="btn-link" onclick="mostrar('inicio')">Volver al inicio</button>
-
             </div>
-
         </section>
-
-
-
         <section id="registro" class="screen">
-
             <div class="form-card">
-
                 <h2>Crear Nueva Cuenta</h2>
-
                 <div class="input-group">
-
                     <label>Nombre Completo</label>
-
                     <input type="text" id="regNombre" placeholder="Juan Pérez">
-
                 </div>
-
                 <div class="input-group">
-
                     <label>Email Corporativo</label>
-
                     <input type="email" id="regEmail" placeholder="juan@empresa.com">
-
                 </div>
-
                 <div class="input-group">
-
                     <label>Contraseña</label>
-
                     <input type="password" id="regPass" placeholder="••••••••">
-
                 </div>
-
                 <button class="btn-primary full-width" onclick="ejecutarRegistro()">FINALIZAR REGISTRO</button>
-
                 <button class="btn-link" onclick="mostrar('inicio')">Volver al inicio</button>
-
             </div>
-
         </section>
-
-
-
         <section id="menu" class="screen">
-
             <header class="main-header">
-
                 <h2>Panel de Control</h2>
-
                 <button class="btn-small-outline" onclick="mostrar('inicio')">Cerrar Sesión</button>
-
             </header>
-
             <div class="dashboard-grid">
-
                 <div class="nav-card" onclick="mostrar('nueva')">
-
                     <h3>Añadir Tarea</h3>
-
                     <p>Configurar nuevos objetivos.</p>
-
                 </div>
-
                 <div class="nav-card" onclick="mostrar('pendientes')">
-
                     <h3>Tareas Pendientes</h3>
-
                     <p>Ver el flujo de trabajo actual.</p>
-
                 </div>
-
                 <div class="nav-card" onclick="mostrar('completadas')">
-
                     <h3>Tareas Completadas</h3>
-
                     <p>Revisar objetivos alcanzados.</p>
-
                 </div>
-
             </div>
-
         </section>
-
-
-
         <section id="nueva" class="screen">
-
             <div class="content-layout">
-
                 <div class="task-form">
-
                     <h2>Nueva Tarea</h2>
-
                     <div class="input-group">
-
                         <label>Descripción de la Tarea</label>
-
                         <input type="text" id="taskInput" placeholder="Ej: Redactar informe trimestral">
-
                     </div>
-
                     <div class="date-selector">
-
                         <p>Fecha seleccionada: <span id="selectedDateLabel">Ninguna</span></p>
-
                         <button class="btn-outline" onclick="toggleCalendar()">Abrir Calendario 2026</button>
-
                     </div>
-
                     <div class="actions">
-
                         <button class="btn-primary" onclick="agregarTarea()">GUARDAR TAREA</button>
-
                         <button class="btn-link" onclick="mostrar('menu')">Cancelar</button>
-
                     </div>
-
                 </div>
-
-                
-
                 <div id="calendarContainer" class="calendar-sidebar hidden">
-
                     <h3>Calendario Anual 2026</h3>
-
                     <div id="calendar2026" class="year-view"></div>
-
                 </div>
-
             </div>
-
         </section>
-
-
-
         <section id="pendientes" class="screen">
-
             <div class="list-page">
-
                 <h2>Tareas Pendientes</h2>
-
                 <div class="table-container">
-
                     <ul id="listaPendientes" class="modern-list"></ul>
-
                 </div>
-
                 <button class="btn-outline" onclick="mostrar('menu')">Volver al Menú</button>
-
             </div>
-
         </section>
-
-
-
         <section id="completadas" class="screen">
-
             <div class="list-page">
-
                 <h2>Historial de Tareas Completadas</h2>
-
                 <div class="table-container">
-
                     <ul id="listaCompletadas" class="modern-list"></ul>
-
                 </div>
-
                 <button class="btn-outline" onclick="mostrar('menu')">Volver al Menú</button>
-
             </div>
-
         </section>
-
-        
-
     </div>
-
 </body>
-
+</html><!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>TaskMaster Pro | Desktop Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <script src="javascript.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <section id="inicio" class="screen active">
+            <div class="hero-section">
+                <h1 class="logo-text">TASKMASTER<span>PRO</span></h1>
+                <p class="hero-subtitle">Gestión de proyectos y tareas para entornos de alto rendimiento.</p>
+                <div class="auth-buttons">
+                    <button class="btn-primary" onclick="mostrar('login')">INICIAR SESIÓN</button>
+                    <button class="btn-outline" onclick="mostrar('registro')">REGISTRARSE</button>
+                </div>
+            </div>
+        </section>
+        <section id="login" class="screen">
+            <div class="form-card">
+                <h2>Acceso de Usuario</h2>
+                <div class="input-group">
+                    <label>Correo Electrónico</label>
+                    <input type="email" id="emailUser" placeholder="ejemplo@taskmaster.com">
+                </div>
+                <div class="input-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="passUser" placeholder="••••••••">
+                </div>
+                <button class="btn-primary full-width" onclick="ejecutarLogin()">ENTRAR AL SISTEMA</button>
+                <button class="btn-link" onclick="mostrar('inicio')">Volver al inicio</button>
+            </div>
+        </section>
+        <section id="registro" class="screen">
+            <div class="form-card">
+                <h2>Crear Nueva Cuenta</h2>
+                <div class="input-group">
+                    <label>Nombre Completo</label>
+                    <input type="text" id="regNombre" placeholder="Juan Pérez">
+                </div>
+                <div class="input-group">
+                    <label>Email Corporativo</label>
+                    <input type="email" id="regEmail" placeholder="juan@empresa.com">
+                </div>
+                <div class="input-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="regPass" placeholder="••••••••">
+                </div>
+                <button class="btn-primary full-width" onclick="ejecutarRegistro()">FINALIZAR REGISTRO</button>
+                <button class="btn-link" onclick="mostrar('inicio')">Volver al inicio</button>
+            </div>
+        </section>
+        <section id="menu" class="screen">
+            <header class="main-header">
+                <h2>Panel de Control</h2>
+                <button class="btn-small-outline" onclick="mostrar('inicio')">Cerrar Sesión</button>
+            </header>
+            <div class="dashboard-grid">
+                <div class="nav-card" onclick="mostrar('nueva')">
+                    <h3>Añadir Tarea</h3>
+                    <p>Configurar nuevos objetivos.</p>
+                </div>
+                <div class="nav-card" onclick="mostrar('pendientes')">
+                    <h3>Tareas Pendientes</h3>
+                    <p>Ver el flujo de trabajo actual.</p>
+                </div>
+                <div class="nav-card" onclick="mostrar('completadas')">
+                    <h3>Tareas Completadas</h3>
+                    <p>Revisar objetivos alcanzados.</p>
+                </div>
+            </div>
+        </section>
+        <section id="nueva" class="screen">
+            <div class="content-layout">
+                <div class="task-form">
+                    <h2>Nueva Tarea</h2>
+                    <div class="input-group">
+                        <label>Descripción de la Tarea</label>
+                        <input type="text" id="taskInput" placeholder="Ej: Redactar informe trimestral">
+                    </div>
+                    <div class="date-selector">
+                        <p>Fecha seleccionada: <span id="selectedDateLabel">Ninguna</span></p>
+                        <button class="btn-outline" onclick="toggleCalendar()">Abrir Calendario 2026</button>
+                    </div>
+                    <div class="actions">
+                        <button class="btn-primary" onclick="agregarTarea()">GUARDAR TAREA</button>
+                        <button class="btn-link" onclick="mostrar('menu')">Cancelar</button>
+                    </div>
+                </div>
+                <div id="calendarContainer" class="calendar-sidebar hidden">
+                    <h3>Calendario Anual 2026</h3>
+                    <div id="calendar2026" class="year-view"></div>
+                </div>
+            </div>
+        </section>
+        <section id="pendientes" class="screen">
+            <div class="list-page">
+                <h2>Tareas Pendientes</h2>
+                <div class="table-container">
+                    <ul id="listaPendientes" class="modern-list"></ul>
+                </div>
+                <button class="btn-outline" onclick="mostrar('menu')">Volver al Menú</button>
+            </div>
+        </section>
+        <section id="completadas" class="screen">
+            <div class="list-page">
+                <h2>Historial de Tareas Completadas</h2>
+                <div class="table-container">
+                    <ul id="listaCompletadas" class="modern-list"></ul>
+                </div>
+                <button class="btn-outline" onclick="mostrar('menu')">Volver al Menú</button>
+            </div>
+        </section>
+    </div>
+</body>
 </html>
