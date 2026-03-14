@@ -9,99 +9,66 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function inicializarApp() {
-    // Event listeners para autenticación
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
-    const toggleAuthLinks = document.querySelectorAll('.toggle-auth');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const addTaskForm = document.getElementById('addTaskForm');
-
-    if (loginForm) {
-        loginForm.addEventListener('submit', handleLogin);
-    }
-
-    if (registerForm) {
-        registerForm.addEventListener('submit', handleRegister);
-    }
-
-    toggleAuthLinks.forEach(link => {
+    // Event listeners autenticación
+    document.getElementById('loginForm')?.addEventListener('submit', handleLogin);
+    document.getElementById('registerForm')?.addEventListener('submit', handleRegister);
+    
+    document.querySelectorAll('.toggle-auth').forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             toggleAuthPanel(link.dataset.panel);
         });
     });
 
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', handleLogout);
-    }
+    document.getElementById('logoutBtn')?.addEventListener('click', handleLogout);
+    document.getElementById('addTaskForm')?.addEventListener('submit', handleAddTask);
 
-    if (addTaskForm) {
-        addTaskForm.addEventListener('submit', handleAddTask);
-    }
-
-    mostrarPantalla('authSection');
+    mostrarSeccion('auth');
 }
 
-// ========== FUNCIONES DE AUTENTICACIÓN ==========
+// ========== AUTENTICACIÓN ==========
 
-/**
- * Alterna entre paneles de login y registro
- */
 function toggleAuthPanel(panel) {
-    document.querySelectorAll('.auth-panel').forEach(p => {
-        p.classList.remove('active');
-    });
+    document.querySelectorAll('.auth-panel').forEach(p => p.classList.remove('active'));
     document.getElementById(panel + 'Panel').classList.add('active');
 }
 
-/**
- * Valida formato de email
- */
 function validarEmail(email) {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-/**
- * Maneja el login del usuario
- */
 function handleLogin(e) {
     e.preventDefault();
 
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
 
-    // Validaciones
     if (!email || !password) {
         mostrarNotificacion('Por favor completa todos los campos', 'error');
         return;
     }
 
     if (!validarEmail(email)) {
-        mostrarNotificacion('Por favor ingresa un correo válido', 'error');
+        mostrarNotificacion('Correo inválido', 'error');
         return;
     }
 
     if (password.length < 6) {
-        mostrarNotificacion('La contraseña debe tener al menos 6 caracteres', 'error');
+        mostrarNotificacion('Contraseña debe tener 6+ caracteres', 'error');
         return;
     }
 
-    // Guardar usuario y mostrar bienvenida
     usuarioActual = email.split('@')[0];
     mostrarNotificacion('¡Bienvenido ' + usuarioActual + '!', 'success');
 
     setTimeout(() => {
         document.getElementById('userName').textContent = usuarioActual.charAt(0).toUpperCase() + usuarioActual.slice(1);
         document.getElementById('loginForm').reset();
-        mostrarPantalla('tasksSection');
+        mostrarSeccion('tasks');
         renderizarTareas();
-    }, 500);
+    }, 800);
 }
 
-/**
- * Maneja el registro del usuario
- */
 function handleRegister(e) {
     e.preventDefault();
 
@@ -110,24 +77,23 @@ function handleRegister(e) {
     const password = document.getElementById('registerPassword').value;
     const confirmPassword = document.getElementById('registerPassword2').value;
 
-    // Validaciones
     if (!nombre || !email || !password || !confirmPassword) {
-        mostrarNotificacion('Por favor completa todos los campos', 'error');
+        mostrarNotificacion('Completa todos los campos', 'error');
         return;
     }
 
     if (!validarEmail(email)) {
-        mostrarNotificacion('Por favor ingresa un correo válido', 'error');
+        mostrarNotificacion('Correo inválido', 'error');
         return;
     }
 
     if (nombre.length < 3) {
-        mostrarNotificacion('El nombre debe tener al menos 3 caracteres', 'error');
+        mostrarNotificacion('Nombre debe tener 3+ caracteres', 'error');
         return;
     }
 
     if (password.length < 6) {
-        mostrarNotificacion('La contraseña debe tener al menos 6 caracteres', 'error');
+        mostrarNotificacion('Contraseña debe tener 6+ caracteres', 'error');
         return;
     }
 
@@ -136,36 +102,29 @@ function handleRegister(e) {
         return;
     }
 
-    mostrarNotificacion('¡Registro exitoso! Ahora inicia sesión', 'success');
+    mostrarNotificacion('¡Registro exitoso! Inicia sesión', 'success');
 
     setTimeout(() => {
         document.getElementById('registerForm').reset();
         toggleAuthPanel('login');
-    }, 500);
+    }, 800);
 }
 
-/**
- * Maneja logout del usuario
- */
 function handleLogout() {
-    if (confirm('¿Deseas cerrar sesión?')) {
+    if (confirm('¿Cerrar sesión?')) {
         tareas = [];
         usuarioActual = '';
         document.getElementById('loginForm').reset();
         document.getElementById('registerForm').reset();
-        mostrarPantalla('authSection');
+        mostrarSeccion('auth');
         toggleAuthPanel('login');
-        mostrarNotificacion('Sesión cerrada correctamente', 'success');
-        localStorage.removeItem('taskMasterTareas');
-        localStorage.removeItem('taskMasterUsuario');
+        mostrarNotificacion('Sesión cerrada', 'success');
+        localStorage.clear();
     }
 }
 
-// ========== FUNCIONES DE TAREAS ==========
+// ========== TAREAS ==========
 
-/**
- * Maneja agregar nueva tarea
- */
 function handleAddTask(e) {
     e.preventDefault();
 
@@ -173,12 +132,12 @@ function handleAddTask(e) {
     const descripcion = taskInput.value.trim();
 
     if (!descripcion) {
-        mostrarNotificacion('Por favor escribe una tarea', 'error');
+        mostrarNotificacion('Escribe una tarea', 'error');
         return;
     }
 
     if (descripcion.length < 3) {
-        mostrarNotificacion('La tarea debe tener al menos 3 caracteres', 'error');
+        mostrarNotificacion('Tarea muy corta (mín 3 caracteres)', 'error');
         return;
     }
 
@@ -197,74 +156,53 @@ function handleAddTask(e) {
     taskInput.value = '';
     taskInput.focus();
 
-    mostrarNotificacion('✓ Tarea añadida correctamente', 'success');
+    mostrarNotificacion('✓ Tarea añadida', 'success');
     renderizarTareas();
     guardarDatos();
 }
 
-/**
- * Completa o descompleta una tarea
- */
 function completarTarea(id) {
     const tarea = tareas.find(t => t.id === id);
     if (tarea) {
         tarea.completada = !tarea.completada;
         renderizarTareas();
-        mostrarNotificacion(
-            tarea.completada ? '✓ Tarea completada' : '↩ Tarea marcada como pendiente',
-            'success'
-        );
         guardarDatos();
     }
 }
 
-/**
- * Elimina una tarea
- */
 function eliminarTarea(id) {
-    if (confirm('¿Deseas eliminar esta tarea?')) {
+    if (confirm('¿Eliminar tarea?')) {
         tareas = tareas.filter(t => t.id !== id);
-        renderizarTareas();
         mostrarNotificacion('Tarea eliminada', 'success');
+        renderizarTareas();
         guardarDatos();
     }
 }
 
-/**
- * Renderiza todas las tareas
- */
 function renderizarTareas() {
     const pendingContainer = document.getElementById('pendingTasks');
     const completedContainer = document.getElementById('completedTasks');
 
-    if (!pendingContainer || !completedContainer) return;
-
     const tareasPendientes = tareas.filter(t => !t.completada);
     const tareasCompletadas = tareas.filter(t => t.completada);
 
-    // Renderizar tareas pendientes
+    // Actualizar contadores
+    document.getElementById('pendingCount').textContent = tareasPendientes.length;
+    document.getElementById('completedCount').textContent = tareasCompletadas.length;
+
+    // Pendientes
     if (tareasPendientes.length === 0) {
-        pendingContainer.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-state-icon">📝</div>
-                <div class="empty-state-text">No hay tareas pendientes</div>
-            </div>
-        `;
+        pendingContainer.innerHTML = '<div class="empty-message"><p>📝 Crea tu primera tarea</p></div>';
     } else {
         pendingContainer.innerHTML = '';
         tareasPendientes.forEach(tarea => {
-            pendingContainer.appendChild(crearElementoTarea(tarea, false));
+            pendingContainer.appendChild(crearElementoTarea(tarea));
         });
     }
 
-    // Renderizar tareas completadas
+    // Completadas
     if (tareasCompletadas.length === 0) {
-        completedContainer.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-state-icon">🎯</div>
-                <div class="empty-state-text">Aún no hay tareas completadas</div>
-            </div>
-        `;
+        completedContainer.innerHTML = '<div class="empty-message"><p>🎯 Completa tus primeras tareas</p></div>';
     } else {
         completedContainer.innerHTML = '';
         tareasCompletadas.forEach(tarea => {
@@ -273,23 +211,18 @@ function renderizarTareas() {
     }
 }
 
-/**
- * Crea el elemento HTML de una tarea
- */
-function crearElementoTarea(tarea, completada) {
+function crearElementoTarea(tarea, completada = false) {
     const div = document.createElement('div');
-    div.className = 'task-item';
+    div.className = `task-item ${completada ? 'completed' : ''}`;
     
     div.innerHTML = `
         <div class="task-content">
-            <div class="task-description ${completada ? 'task-completed' : ''}">
-                ${escaparHTML(tarea.descripcion)}
-            </div>
+            <div class="task-text">${escaparHTML(tarea.descripcion)}</div>
             <div class="task-date">${tarea.fecha}</div>
         </div>
-        <div style="display: flex; gap: 8px;">
-            <button class="btn-complete" onclick="completarTarea(${tarea.id})" title="Marcar como ${completada ? 'pendiente' : 'completada'}">
-                ${completada ? 'Deshacer' : 'Completar'}
+        <div class="task-actions">
+            <button class="btn-complete" onclick="completarTarea(${tarea.id})">
+                ${completada ? 'Deshacer' : '✓'}
             </button>
         </div>
     `;
@@ -297,32 +230,27 @@ function crearElementoTarea(tarea, completada) {
     return div;
 }
 
-// ========== FUNCIONES UTILITARIAS ==========
+// ========== UTILIDADES ==========
 
-/**
- * Escapa caracteres HTML para evitar inyecciones
- */
 function escaparHTML(texto) {
     const div = document.createElement('div');
     div.textContent = texto;
     return div.innerHTML;
 }
 
-/**
- * Muestra/oculta pantallas
- */
-function mostrarPantalla(seccion) {
-    document.querySelectorAll('.container > div').forEach(el => {
+function mostrarSeccion(seccion) {
+    document.querySelectorAll('.auth-section, .tasks-section').forEach(el => {
         el.classList.remove('active');
     });
-    document.getElementById(seccion).classList.add('active');
+
+    if (seccion === 'auth') {
+        document.getElementById('authSection').classList.add('active');
+    } else if (seccion === 'tasks') {
+        document.getElementById('tasksSection').classList.add('active');
+    }
 }
 
-/**
- * Muestra notificaciones visuales
- */
 function mostrarNotificacion(mensaje, tipo = 'success') {
-    // Crear elemento de notificación
     const notif = document.createElement('div');
     notif.style.cssText = `
         position: fixed;
@@ -333,45 +261,37 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
         font-weight: 600;
         font-size: 14px;
         z-index: 9999;
-        animation: slideInRight 0.4s ease;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        animation: slideUp 0.4s ease;
         max-width: 350px;
         word-wrap: break-word;
     `;
 
     if (tipo === 'success') {
-        notif.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+        notif.style.background = 'linear-gradient(135deg, #48bb78, #38a169)';
         notif.style.color = 'white';
-    } else if (tipo === 'error') {
-        notif.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+        notif.style.boxShadow = '0 8px 16px rgba(72, 187, 120, 0.3)';
+    } else {
+        notif.style.background = 'linear-gradient(135deg, #f56565, #e53e3e)';
         notif.style.color = 'white';
+        notif.style.boxShadow = '0 8px 16px rgba(245, 101, 101, 0.3)';
     }
 
     notif.textContent = mensaje;
     document.body.appendChild(notif);
 
-    // Remover notificación después de 3 segundos
     setTimeout(() => {
-        notif.style.animation = 'slideOutRight 0.4s ease';
-        setTimeout(() => {
-            notif.remove();
-        }, 400);
-    }, 3000);
+        notif.style.animation = 'slideDown 0.4s ease';
+        setTimeout(() => notif.remove(), 400);
+    }, 3500);
 }
 
-// ========== ALMACENAMIENTO LOCAL ==========
+// ========== ALMACENAMIENTO ==========
 
-/**
- * Guarda datos en localStorage
- */
 function guardarDatos() {
     localStorage.setItem('taskMasterTareas', JSON.stringify(tareas));
     localStorage.setItem('taskMasterUsuario', usuarioActual);
 }
 
-/**
- * Carga datos desde localStorage
- */
 function cargarDatos() {
     const tareasGuardadas = localStorage.getItem('taskMasterTareas');
     const usuarioGuardado = localStorage.getItem('taskMasterUsuario');
