@@ -8,28 +8,30 @@ function mostrar(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     const target = document.getElementById(id);
     if (target) target.classList.add('active');
+    
     if (id === 'pendientes') renderPendientes();
     if (id === 'completadas') renderCompletadas();
 }
 
-// 2. FUNCIONES DEL CALENDARIO (CORREGIDAS)
+// 2. FUNCIONES DEL CALENDARIO
 function toggleCalendar() { 
     const cal = document.getElementById('calendarContainer');
-    cal.classList.toggle('hidden'); 
+    if (cal) cal.classList.toggle('hidden'); 
 }
 
 function generarCalendarioCompleto() {
-    const container = document.getElementById('calendar2026'); // Coincide con tu HTML
+    const container = document.getElementById('calendar2026'); 
     if (!container) return;
 
     const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-    container.innerHTML = ""; // Limpiar contenedor
+    container.innerHTML = ""; 
 
     meses.forEach((mes, mesIndex) => {
         const monthBox = document.createElement('div');
         monthBox.className = "month-box";
         
-        const title = document.createElement('<h4>');
+        // CORREGIDO: createElement recibe el nombre del tag sin <>
+        const title = document.createElement('h4'); 
         title.innerText = mes;
         monthBox.appendChild(title);
         
@@ -48,9 +50,11 @@ function generarCalendarioCompleto() {
                 const dIso = String(d).padStart(2, '0');
                 fechaSQL = `2026-${mIso}-${dIso}`;
                 
-                // Cambiamos el texto en el ID correcto del HTML
-                document.getElementById('selectedDateLabel').innerText = fechaSeleccionada;
-                toggleCalendar(); // Se cierra al elegir fecha
+                // Aseguramos que el ID coincida con el HTML
+                const label = document.getElementById('selectedDateLabel');
+                if (label) label.innerText = fechaSeleccionada;
+                
+                toggleCalendar(); 
             };
             daysGrid.appendChild(day);
         }
@@ -59,76 +63,88 @@ function generarCalendarioCompleto() {
     });
 }
 
-// 3. LLAMADAS A LA API (Mantenemos tu lógica)
+// 3. LLAMADAS A LA API
 async function ejecutarRegistro() {
-    const nombre = document.querySelector('input[placeholder="Nombre Completo"]').value;
-    const email = document.querySelector('input[placeholder="Email Corporativo"]').value;
-    const pass = document.querySelector('input[placeholder="Contraseña"]').value;
+    const nombre = document.getElementById('regNombre').value;
+    const email = document.getElementById('regEmail').value;
+    const pass = document.getElementById('regPass').value;
 
-    const res = await fetch('api.php?action=register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre_completo: nombre, email_corporativo: email, password: pass })
-    });
-    if (res.ok) { alert("Usuario registrado."); mostrar('login'); }
+    try {
+        const res = await fetch('api.php?action=register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nombre_completo: nombre, email_corporativo: email, password: pass })
+        });
+        if (res.ok) { 
+            alert("Usuario registrado."); 
+            mostrar('login'); 
+        }
+    } catch (e) { alert("Error al conectar con el servidor."); }
 }
 
 async function ejecutarLogin() {
     const email = document.getElementById('emailUser').value;
     const pass = document.getElementById('passUser').value;
 
-    const res = await fetch('api.php?action=login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email_corporativo: email, password: pass })
-    });
-    const data = await res.json();
-    if (res.ok) { 
+    try {
+        const res = await fetch('api.php?action=login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email_corporativo: email, password: pass })
+        });
+        
+        if (!res.ok) throw new Error("Credenciales inválidas");
+        
+        const data = await res.json();
         alert("Bienvenido " + data.usuario); 
-        cargarTareasDesdeDB(); 
+        await cargarTareasDesdeDB(); 
         mostrar('menu'); 
-    } else { 
-        alert("Error en los datos."); 
-    }
+    } catch (e) { alert("Error en los datos o servidor."); }
 }
 
 async function agregarTarea() {
     const input = document.getElementById('taskInput');
-    if (!input.value) return alert("Escribe la descripción de la tarea.");
+    if (!input.value) return alert("Escribe la descripción.");
 
-    const res = await fetch('api.php?action=tareas', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ descripcion: input.value, fecha_vencimiento: fechaSQL })
-    });
+    try {
+        const res = await fetch('api.php?action=tareas', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ descripcion: input.value, fecha_vencimiento: fechaSQL })
+        });
 
-    if (res.ok) {
-        await cargarTareasDesdeDB();
-        input.value = "";
-        document.getElementById('selectedDateLabel').innerText = "Ninguna";
-        mostrar('menu');
-    }
+        if (res.ok) {
+            await cargarTareasDesdeDB();
+            input.value = "";
+            document.getElementById('selectedDateLabel').innerText = "Ninguna";
+            mostrar('menu');
+        }
+    } catch (e) { alert("Error al guardar tarea."); }
 }
 
 async function cargarTareasDesdeDB() {
     try {
         const res = await fetch('api.php?action=tareas');
         const data = await res.json();
+        
         tareasPendientes = data.filter(t => t.estado === 'Pendiente').map(t => ({
             id: t.id, titulo: t.descripcion, fecha: t.fecha_vencimiento || "Sin fecha"
         }));
+        
         tareasCompletadas = data.filter(t => t.estado === 'Completada').map(t => ({
             id: t.id, titulo: t.descripcion
         }));
+        
         renderPendientes();
-    } catch (e) { console.log("Error al cargar"); }
+    } catch (e) { console.log("Error al cargar datos"); }
 }
 
-// 4. RENDERING DE LISTAS
+// 4. RENDERING
 function renderPendientes() {
     const lista = document.getElementById('listaPendientes');
     if (!lista) return;
     lista.innerHTML = tareasPendientes.length ? "" : "<p>No hay tareas pendientes</p>";
+    
     tareasPendientes.forEach((t, i) => {
         const li = document.createElement('li');
         li.innerHTML = `
@@ -151,6 +167,7 @@ function renderCompletadas() {
     const lista = document.getElementById('listaCompletadas');
     if (!lista) return;
     lista.innerHTML = tareasCompletadas.length ? "" : "<p>No hay tareas completadas</p>";
+    
     tareasCompletadas.forEach(t => {
         const li = document.createElement('li');
         li.innerHTML = `<span>${t.titulo}</span>`;
@@ -158,7 +175,6 @@ function renderCompletadas() {
     });
 }
 
-// INICIALIZACIÓN
 window.onload = () => {
     generarCalendarioCompleto();
 };
