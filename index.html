@@ -2,103 +2,107 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>TaskMaster Pro</title>
-    
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-     <link rel="stylesheet" href="style.css">
-
-    <script src="javascript.js"></script>
-
+    <title>TaskMaster Pro | Enterprise Task Management</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="javascript.js" defer></script>
 </head>
-
 <body>
-    <div class="container">
+    <main class="app-container">
+        
         <section id="inicio" class="screen active">
-            <div class="brand">TASKMASTER<span>PRO</span></div>
-            <p>Gestión de tareas de alto rendimiento</p>
-            <div class="button-stack">
-                <button class="btn-primary" onclick="mostrar('login')">INICIAR SESIÓN</button>
-                <button class="btn-secondary" onclick="mostrar('registro')">REGISTRARSE</button>
+            <div class="hero-section">
+                <div class="brand-badge">VERSION 2.0</div>
+                <h1 class="logo-text">TASKMASTER<span>PRO</span></h1>
+                <p class="hero-subtitle">Gestión de proyectos de alto rendimiento para equipos que exigen precisión y velocidad.</p>
+                <div class="auth-buttons">
+                    <button class="btn-primary" onclick="mostrar('login')">ACCEDER</button>
+                    <button class="btn-outline" onclick="mostrar('registro')">CREAR CUENTA</button>
+                </div>
             </div>
         </section>
 
         <section id="login" class="screen">
-            <h2>Acceso de Usuario</h2>
-            <div class="form-group">
-                <input type="email" placeholder="Correo electrónico" id="emailLogin">
-                <input type="password" placeholder="Contraseña" id="passLogin">
+            <div class="form-card">
+                <h2>Acceso Institucional</h2>
+                <div class="input-group">
+                    <label>Email Corporativo</label>
+                    <input type="email" placeholder="usuario@empresa.com" id="emailLogin">
+                </div>
+                <div class="input-group">
+                    <label>Contraseña</label>
+                    <input type="password" placeholder="Introduzca su clave" id="passLogin">
+                </div>
+                <button class="btn-primary full-width" onclick="mostrar('menu')">AUTENTICAR</button>
+                <button class="btn-link" onclick="mostrar('inicio')">VOLVER AL INICIO</button>
             </div>
-            <button class="btn-primary" onclick="mostrar('menu')">ENTRAR</button>
-            <button class="btn-ghost" onclick="mostrar('inicio')">Volver al inicio</button>
-        </section>
-
-        <section id="registro" class="screen">
-            <h2>Crear Perfil</h2>
-            <div class="form-group">
-                <input type="text" placeholder="Nombre completo">
-                <input type="email" placeholder="Correo electrónico">
-                <input type="password" placeholder="Contraseña">
-            </div>
-            <button class="btn-primary" onclick="mostrar('menu')">REGISTRAR CUENTA</button>
-            <button class="btn-ghost" onclick="mostrar('inicio')">Volver al inicio</button>
         </section>
 
         <section id="menu" class="screen">
-            <h2>Panel Principal</h2>
+            <header class="main-header">
+                <div>
+                    <h2 class="no-margin">Panel de Control</h2>
+                    <p class="text-muted">Estado del sistema: Operativo</p>
+                </div>
+                <button class="btn-small-outline" onclick="mostrar('inicio')">LOGOUT</button>
+            </header>
             <div class="dashboard-grid">
-                <div class="dash-card" onclick="mostrar('nueva')">
-                    <h3>Añadir Tarea</h3>
-                    <small>Crear nueva entrada</small>
+                <div class="nav-card" onclick="mostrar('nueva')">
+                    <div class="status-indicator"></div>
+                    <h3>Nueva Tarea</h3>
+                    <p>Registrar nuevo objetivo</p>
                 </div>
-                <div class="dash-card" onclick="mostrar('pendientes')">
+                <div class="nav-card" onclick="mostrar('pendientes')">
+                    <div class="status-indicator active"></div>
                     <h3>Pendientes</h3>
-                    <small>Ver tareas en curso</small>
+                    <p>Revisiones en curso</p>
                 </div>
-                <div class="dash-card" onclick="mostrar('completadas')">
+                <div class="nav-card" onclick="mostrar('completadas')">
+                    <div class="status-indicator success"></div>
                     <h3>Completadas</h3>
-                    <small>Historial de éxito</small>
-                </div>
-                <div class="dash-card secondary" onclick="mostrar('inicio')">
-                    <h3>Salir</h3>
-                    <small>Cerrar sesión</small>
+                    <p>Historial de logs</p>
                 </div>
             </div>
         </section>
 
         <section id="nueva" class="screen">
-            <h2>Configurar Tarea</h2>
-            <input type="text" id="taskInput" placeholder="Nombre de la tarea...">
-            
-            <div class="calendar-selector">
-                <button class="btn-date" onclick="toggleCalendario()">
-                    FECHA: <span id="selectedDateText">Seleccionar en calendario</span>
-                </button>
-                <div id="calendarWrapper" class="calendar-drawer hidden">
-                    <div id="calendar2026Full" class="year-grid"></div>
+            <div class="content-layout">
+                <div class="task-form">
+                    <h2>Configurar Registro</h2>
+                    <div class="input-group">
+                        <label>Nombre del Proyecto / Tarea</label>
+                        <input type="text" id="taskInput" placeholder="Descripción técnica...">
+                    </div>
+                    <div class="date-selector">
+                        <label>Plazo de Entrega</label>
+                        <button class="btn-outline full-width" onclick="toggleCalendario()">
+                            DEFINIR FECHA EN CALENDARIO
+                        </button>
+                        <p id="selectedDateText" class="date-display">Sin fecha seleccionada</p>
+                    </div>
+                    <div class="actions">
+                        <button class="btn-primary" onclick="agregarTarea()">CONFIRMAR REGISTRO</button>
+                        <button class="btn-link" onclick="mostrar('menu')">CANCELAR</button>
+                    </div>
                 </div>
+                
+                <aside class="calendar-sidebar">
+                    <div class="calendar-header">VISTA ANUAL 2026</div>
+                    <div id="calendar2026Full" class="year-view"></div>
+                </aside>
             </div>
-
-            <button class="btn-primary success" onclick="agregarTarea()">GUARDAR TAREA</button>
-            <button class="btn-ghost" onclick="mostrar('menu')">Cancelar</button>
         </section>
 
-        <section id="pendientes" class="screen">
-            <h2>Tareas en Curso</h2>
-            <div class="list-container">
-                <ul id="listaPendientes"></ul>
+        <section id="pendientes" class="screen list-page">
+            <div class="list-header">
+                <h2>Tareas en Curso</h2>
             </div>
-            <button class="btn-ghost" onclick="mostrar('menu')">Volver al menú</button>
+            <div class="table-container">
+                <ul id="listaPendientes" class="modern-list"></ul>
+            </div>
+            <button class="btn-link" onclick="mostrar('menu')">REGRESAR AL PANEL</button>
         </section>
 
-        <section id="completadas" class="screen">
-            <h2>Registro de Completadas</h2>
-            <div class="list-container">
-                <ul id="listaCompletadas"></ul>
-            </div>
-            <button class="btn-ghost" onclick="mostrar('menu')">Volver al menú</button>
-        </section>
-    </div>
-   
+    </main>
 </body>
 </html>
