@@ -87,18 +87,19 @@
                         <input type="text" id="taskInput" placeholder="Ej: Redactar informe trimestral">
                     </div>
                     <div class="date-selector">
-                        <p>Fecha seleccionada: <span id="selectedDateLabel">Ninguna</span></p>
-                        <button class="btn-outline" onclick="toggleCalendar()">Abrir Calendario 2026</button>
+                        <p>Fecha seleccionada: <span id="selectedDateText">Seleccionar fecha</span></p>
+                        <button class="btn-outline" onclick="toggleCalendario()">Abrir Calendario 2026</button>
                     </div>
+                    
+                    <div id="calendarWrapper" class="calendar-sidebar hidden">
+                        <h3>Calendario Anual 2026</h3>
+                        <div id="calendar2026Full" class="year-view"></div>
+                    </div>
+
                     <div class="actions">
                         <button class="btn-primary" onclick="agregarTarea()">GUARDAR TAREA</button>
                         <button class="btn-link" onclick="mostrar('menu')">Cancelar</button>
                     </div>
-                </div>
-                
-                <div id="calendarContainer" class="calendar-sidebar hidden">
-                    <h3>Calendario Anual 2026</h3>
-                    <div id="calendar2026" class="year-view"></div>
                 </div>
             </div>
         </section>
