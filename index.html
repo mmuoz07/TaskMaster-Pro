@@ -90,16 +90,15 @@
                         <p>Fecha seleccionada: <span id="selectedDateText">Seleccionar fecha</span></p>
                         <button class="btn-outline" onclick="toggleCalendario()">Abrir Calendario 2026</button>
                     </div>
-                    
-                    <div id="calendarWrapper" class="calendar-sidebar hidden">
-                        <h3>Calendario Anual 2026</h3>
-                        <div id="calendar2026Full" class="year-view"></div>
-                    </div>
-
                     <div class="actions">
                         <button class="btn-primary" onclick="agregarTarea()">GUARDAR TAREA</button>
                         <button class="btn-link" onclick="mostrar('menu')">Cancelar</button>
                     </div>
+                </div>
+                
+                <div id="calendarWrapper" class="calendar-sidebar hidden">
+                    <h3>Calendario Anual 2026</h3>
+                    <div id="calendar2026Full" class="year-view"></div>
                 </div>
             </div>
         </section>
@@ -116,14 +115,13 @@
 
         <section id="completadas" class="screen">
             <div class="list-page">
-                <h2>Historial de Tareas Completadas</h2>
+                <h2>Tareas Completadas</h2>
                 <div class="table-container">
                     <ul id="listaCompletadas" class="modern-list"></ul>
                 </div>
                 <button class="btn-outline" onclick="mostrar('menu')">Volver al Menú</button>
             </div>
         </section>
-        
     </div>
 </body>
 </html>
