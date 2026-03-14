@@ -1,5 +1,5 @@
 :root {
-    --primary: #ffffff; /* Blanco para un look ultra moderno sobre oscuro */
+    --primary: #ffffff; /* Blanco para look moderno */
     --primary-bg: #2563eb;
     --bg-app: #0a0a0a;
     --bg-card: #111111;
@@ -8,9 +8,16 @@
     --border: #222222;
     --success: #00ff88;
     --warning: #ffcc00;
+    --danger: #ff4444;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; letter-spacing: -0.01em; }
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+    font-family: 'Inter', -apple-system, sans-serif; 
+    letter-spacing: -0.01em; 
+}
 
 body {
     background-color: var(--bg-app);
@@ -19,19 +26,21 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    overflow-x: hidden;
 }
 
 .app-container {
-    width: 100%;
+    width: 95%;
     max-width: 1100px;
     background: var(--bg-card);
-    min-height: 600px;
+    min-height: 650px;
     border: 1px solid var(--border);
     padding: 60px;
     position: relative;
+    border-radius: 4px; /* Bordes ligeramente suavizados pero rectos para seriedad */
 }
 
-/* Tipografía Logo */
+/* === TIPOGRAFÍA Y LOGO === */
 .logo-text {
     font-size: 3.5rem;
     font-weight: 800;
@@ -51,16 +60,45 @@ body {
     padding: 4px 10px;
     margin-bottom: 20px;
     color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
-/* Botones Sobrios */
+.hero-subtitle {
+    color: var(--text-muted);
+    max-width: 450px;
+    margin-bottom: 40px;
+    line-height: 1.6;
+}
+
+/* === SISTEMA DE PANTALLAS === */
+.screen { 
+    display: none; 
+}
+
+.screen.active { 
+    display: block; 
+    animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+}
+
+@keyframes fadeIn { 
+    from { opacity: 0; transform: translateY(10px); } 
+    to { opacity: 1; transform: translateY(0); } 
+}
+
+/* === BOTONES === */
 button { 
+    cursor: pointer;
     text-transform: uppercase;
     font-size: 11px;
     font-weight: 700;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
     padding: 16px 30px;
-    transition: 0.2s;
+    transition: all 0.2s ease;
+    border: none;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .btn-primary {
@@ -81,9 +119,27 @@ button {
 
 .btn-outline:hover {
     border-color: var(--text-muted);
+    background: rgba(255,255,255,0.05);
 }
 
-/* Dashboard Cards con Indicadores */
+.btn-link {
+    background: none;
+    color: var(--text-muted);
+    font-size: 10px;
+    margin-top: 15px;
+    text-decoration: none;
+    border: 1px solid transparent;
+}
+
+.btn-link:hover {
+    color: var(--text);
+}
+
+.full-width {
+    width: 100%;
+}
+
+/* === DASHBOARD GRID === */
 .dashboard-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -93,9 +149,10 @@ button {
 
 .nav-card {
     border: 1px solid var(--border);
-    padding: 30px;
+    padding: 40px 30px;
     cursor: pointer;
     position: relative;
+    transition: 0.3s;
 }
 
 .nav-card:hover {
@@ -107,45 +164,140 @@ button {
     width: 8px;
     height: 8px;
     background: #333;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     border-radius: 50%;
 }
 
-.status-indicator.active { background: var(--warning); box-shadow: 0 0 10px var(--warning); }
-.status-indicator.success { background: var(--success); box-shadow: 0 0 10px var(--success); }
+.status-indicator.active { background: var(--warning); box-shadow: 0 0 12px var(--warning); }
+.status-indicator.success { background: var(--success); box-shadow: 0 0 12px var(--success); }
 
-/* Forms y Listas */
+/* === FORMULARIOS === */
+.form-card {
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+.input-group {
+    margin-bottom: 25px;
+}
+
+.input-group label {
+    display: block;
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+}
+
 .input-group input {
     width: 100%;
-    background: transparent;
+    background: #050505;
     border: 1px solid var(--border);
-    padding: 15px;
+    padding: 18px;
     color: white;
     font-size: 14px;
+    outline: none;
+    transition: border 0.3s;
 }
 
 .input-group input:focus {
     border-color: var(--primary-bg);
-    outline: none;
+}
+
+/* === CALENDARIO (CORRECCIONES) === */
+.content-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 40px;
+}
+
+.calendar-sidebar {
+    background: #0a0a0a;
+    border: 1px solid var(--border);
+    padding: 20px;
+}
+
+.calendar-sidebar.hidden {
+    display: none;
+}
+
+.year-view {
+    max-height: 450px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.year-view::-webkit-scrollbar { width: 3px; }
+.year-view::-webkit-scrollbar-thumb { background: #333; }
+
+.month-box {
+    margin-bottom: 30px;
+}
+
+.month-box h4 {
+    font-size: 11px;
+    color: var(--primary-bg);
+    text-transform: uppercase;
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 5px;
+}
+
+.days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.day:hover {
+    background: var(--primary-bg);
+    color: white;
+}
+
+/* === LISTAS MODERNAS === */
+.table-container {
+    margin-top: 30px;
+    border-top: 1px solid var(--border);
+}
+
+.modern-list {
+    list-style: none;
 }
 
 .modern-list li {
     border-bottom: 1px solid var(--border);
-    padding: 20px 0;
+    padding: 25px 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.date-display {
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-top: 10px;
-    text-align: center;
+.modern-list li strong {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 5px;
 }
 
-/* Esconder pantallas */
-.screen { display: none; }
-.screen.active { display: block; animation: fadeIn 0.5s ease; }
+.modern-list li small {
+    color: var(--text-muted);
+    font-size: 12px;
+}
 
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+/* === RESPONSIVO === */
+@media (max-width: 850px) {
+    .content-layout { grid-template-columns: 1fr; }
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .app-container { padding: 30px; }
+    .logo-text { font-size: 2.5rem; }
+}
