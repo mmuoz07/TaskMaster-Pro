@@ -1,217 +1,28 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="TaskMaster Pro - Gestor de tareas minimalista y profesional">
-    <meta name="theme-color" content="#2563eb">
-    <title>TaskMaster Pro - Gestor de Tareas Inteligente</title>
     <link rel="stylesheet" href="styles.css">
+    <title>TaskMaster Pro</title>
 </head>
 <body>
-    <!-- Contenedor Principal -->
-    <div class="container">
-
-        <!-- ========== SECCIÓN DE AUTENTICACIÓN ========== -->
-        <div id="authSection" class="auth-section">
-            
-            <!-- Panel de Login -->
-            <div id="loginPanel" class="auth-panel active">
-                <div class="auth-header">
-                    <h1 class="app-title">TaskMaster<span>Pro</span></h1>
-                    <p class="app-subtitle">Gestor de tareas minimalista y profesional</p>
-                </div>
-
-                <form class="auth-form" id="loginForm">
-                    <div class="form-group">
-                        <label for="loginEmail">Correo Electrónico</label>
-                        <input 
-                            type="email" 
-                            id="loginEmail" 
-                            placeholder="tu@email.com" 
-                            required
-                            autocomplete="email"
-                        >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="loginPassword">Contraseña</label>
-                        <input 
-                            type="password" 
-                            id="loginPassword" 
-                            placeholder="••••••••" 
-                            required
-                            autocomplete="current-password"
-                        >
-                    </div>
-
-                    <button type="submit" class="btn btn-primary btn-block">
-                        Iniciar Sesión
-                    </button>
-                </form>
-
-                <div class="auth-footer">
-                    <p>
-                        ¿No tienes cuenta? 
-                        <a href="#" class="toggle-auth" data-panel="register">
-                            Regístrate aquí
-                        </a>
-                    </p>
-                </div>
-            </div>
-
-            <!-- Panel de Registro -->
-            <div id="registerPanel" class="auth-panel">
-                <div class="auth-header">
-                    <h1 class="app-title">TaskMaster<span>Pro</span></h1>
-                    <p class="app-subtitle">Crea tu cuenta y organiza tus tareas</p>
-                </div>
-
-                <form class="auth-form" id="registerForm">
-                    <div class="form-group">
-                        <label for="registerName">Nombre Completo</label>
-                        <input 
-                            type="text" 
-                            id="registerName" 
-                            placeholder="Juan Pérez" 
-                            required
-                            autocomplete="name"
-                        >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="registerEmail">Correo Electrónico</label>
-                        <input 
-                            type="email" 
-                            id="registerEmail" 
-                            placeholder="tu@email.com" 
-                            required
-                            autocomplete="email"
-                        >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="registerPassword">Contraseña</label>
-                        <input 
-                            type="password" 
-                            id="registerPassword" 
-                            placeholder="Mínimo 6 caracteres" 
-                            required
-                            autocomplete="new-password"
-                        >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="registerPassword2">Confirmar Contraseña</label>
-                        <input 
-                            type="password" 
-                            id="registerPassword2" 
-                            placeholder="Repite tu contraseña" 
-                            required
-                            autocomplete="new-password"
-                        >
-                    </div>
-
-                    <button type="submit" class="btn btn-primary btn-block">
-                        Crear Cuenta
-                    </button>
-                </form>
-
-                <div class="auth-footer">
-                    <p>
-                        ¿Ya tienes cuenta? 
-                        <a href="#" class="toggle-auth" data-panel="login">
-                            Inicia sesión aquí
-                        </a>
-                    </p>
-                </div>
-            </div>
-
+    <header>
+        <h1>TaskMaster Pro</h1>
+    </header>
+    <main>
+        <div id="task-list">
+            <h2>Your Tasks</h2>
+            <ul id="tasks"></ul>
         </div>
-
-        <!-- ========== SECCIÓN DE TAREAS ========== -->
-        <div id="tasksSection" class="tasks-section">
-            
-            <!-- Header de Tareas -->
-            <div class="tasks-header">
-                <div class="header-top">
-                    <div>
-                        <h2 class="welcome-message">
-                            Bienvenido, <span id="userName">Usuario</span> 👋
-                        </h2>
-                        <p style="color: var(--text-muted); font-size: 13px; margin-top: 5px;">
-                            Organiza tus tareas de manera eficiente
-                        </p>
-                    </div>
-                    <button class="btn btn-logout" id="logoutBtn">
-                        🚪 Cerrar Sesión
-                    </button>
-                </div>
-            </div>
-
-            <!-- Contenedor de Tareas -->
-            <div class="tasks-container">
-
-                <!-- Sección: Agregar Nueva Tarea -->
-                <div class="add-task-section">
-                    <form id="addTaskForm" class="add-task-form">
-                        <input 
-                            type="text" 
-                            id="taskInput" 
-                            placeholder="Escribe una nueva tarea... 📝" 
-                            required
-                            autocomplete="off"
-                        >
-                        <button type="submit" class="btn btn-add">
-                            + Añadir Tarea
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Sección: Grid de Tareas (Pendientes y Completadas) -->
-                <div class="tasks-grid">
-                    
-                    <!-- Columna: Tareas Pendientes -->
-                    <div class="task-column">
-                        <h3 class="column-title">
-                            📋 Tareas Pendientes
-                        </h3>
-                        <div id="pendingTasks" class="task-list">
-                            <!-- Las tareas pendientes se generarán aquí con JavaScript -->
-                            <div class="empty-state">
-                                <div class="empty-state-icon">📝</div>
-                                <div class="empty-state-text">No hay tareas pendientes</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Columna: Tareas Completadas -->
-                    <div class="task-column">
-                        <h3 class="column-title">
-                            ✅ Tareas Completadas
-                        </h3>
-                        <div id="completedTasks" class="task-list">
-                            <!-- Las tareas completadas se generarán aquí con JavaScript -->
-                            <div class="empty-state">
-                                <div class="empty-state-icon">🎯</div>
-                                <div class="empty-state-text">Aún no hay tareas completadas</div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-                <!-- Fin tasks-grid -->
-
-            </div>
-            <!-- Fin tasks-container -->
-
+        <div id="add-task">
+            <input type="text" id="task-input" placeholder="Add a new task">
+            <button id="add-button">Add Task</button>
         </div>
-        <!-- Fin tasksSection -->
-
-    </div>
-    <!-- Fin container -->
-
-    <!-- Script -->
-    <script src="script.js" defer></script>
+    </main>
+    <footer>
+        <p>&copy; 2026 TaskMaster Pro. All rights reserved.</p>
+    </footer>
+    <script src="script.js"></script>
 </body>
 </html>
