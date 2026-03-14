@@ -1,221 +1,386 @@
+// ========== VARIABLES GLOBALES ==========
 let tareas = [];
-let fechaSeleccionada = "";
-let currentScreen = "login";
+let usuarioActual = "";
 
-// Mostrar/ocultar pantallas
-function mostrar(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    const screenElement = document.getElementById(id);
-    if (screenElement) {
-        screenElement.classList.add('active');
+// ========== INICIALIZACIÓN ==========
+document.addEventListener('DOMContentLoaded', () => {
+    inicializarApp();
+    cargarDatos();
+});
+
+function inicializarApp() {
+    // Event listeners para autenticación
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const toggleAuthLinks = document.querySelectorAll('.toggle-auth');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const addTaskForm = document.getElementById('addTaskForm');
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
     }
-    
-    currentScreen = id;
-    
-    if (id === 'pendientes' || id === 'completadas') {
-        renderListas();
+
+    if (registerForm) {
+        registerForm.addEventListener('submit', handleRegister);
     }
+
+    toggleAuthLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleAuthPanel(link.dataset.panel);
+        });
+    });
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', handleLogout);
+    }
+
+    if (addTaskForm) {
+        addTaskForm.addEventListener('submit', handleAddTask);
+    }
+
+    mostrarPantalla('authSection');
 }
 
-// Alternar entre login y registro
-function alternarAuth(pantalla) {
-    mostrar(pantalla);
+// ========== FUNCIONES DE AUTENTICACIÓN ==========
+
+/**
+ * Alterna entre paneles de login y registro
+ */
+function toggleAuthPanel(panel) {
+    document.querySelectorAll('.auth-panel').forEach(p => {
+        p.classList.remove('active');
+    });
+    document.getElementById(panel + 'Panel').classList.add('active');
 }
 
-// Simulación de login
-function loginSimulado(e) {
-    if (e) e.preventDefault();
-    
-    const email = document.getElementById('loginEmail')?.value || '';
-    const password = document.getElementById('loginPassword')?.value || '';
-    
+/**
+ * Valida formato de email
+ */
+function validarEmail(email) {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+}
+
+/**
+ * Maneja el login del usuario
+ */
+function handleLogin(e) {
+    e.preventDefault();
+
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    // Validaciones
     if (!email || !password) {
-        alert("Por favor completa todos los campos");
+        mostrarNotificacion('Por favor completa todos los campos', 'error');
         return;
     }
-    
-    // Validar formato email
-    if (!email.includes('@')) {
-        alert("Por favor ingresa un correo válido");
-        return;
-    }
-    
-    alert("¡Bienvenido!");
-    mostrar('menu');
-    
-    // Limpiar formulario
-    document.getElementById('loginEmail').value = '';
-    document.getElementById('loginPassword').value = '';
-}
 
-// Simulación de registro
-function registroSimulado(e) {
-    if (e) e.preventDefault();
-    
-    const nombre = document.getElementById('registerName')?.value || '';
-    const email = document.getElementById('registerEmail')?.value || '';
-    const password = document.getElementById('registerPassword')?.value || '';
-    const confirmPassword = document.getElementById('registerConfirmPassword')?.value || '';
-    
-    if (!nombre || !email || !password || !confirmPassword) {
-        alert("Por favor completa todos los campos");
+    if (!validarEmail(email)) {
+        mostrarNotificacion('Por favor ingresa un correo válido', 'error');
         return;
     }
-    
-    if (password !== confirmPassword) {
-        alert("Las contraseñas no coinciden");
-        return;
-    }
-    
+
     if (password.length < 6) {
-        alert("La contraseña debe tener al menos 6 caracteres");
+        mostrarNotificacion('La contraseña debe tener al menos 6 caracteres', 'error');
         return;
     }
-    
-    alert("¡Registro exitoso! Ahora inicia sesión");
-    mostrar('login');
-    
-    // Limpiar formulario
-    document.getElementById('registerName').value = '';
-    document.getElementById('registerEmail').value = '';
-    document.getElementById('registerPassword').value = '';
-    document.getElementById('registerConfirmPassword').value = '';
+
+    // Guardar usuario y mostrar bienvenida
+    usuarioActual = email.split('@')[0];
+    mostrarNotificacion('¡Bienvenido ' + usuarioActual + '!', 'success');
+
+    setTimeout(() => {
+        document.getElementById('userName').textContent = usuarioActual.charAt(0).toUpperCase() + usuarioActual.slice(1);
+        document.getElementById('loginForm').reset();
+        mostrarPantalla('tasksSection');
+        renderizarTareas();
+    }, 500);
 }
 
-// Agregar tarea
-function agregarTareaLocal(e) {
-    if (e) e.preventDefault();
-    
-    const input = document.getElementById('taskInput');
-    if (!input.value.trim()) {
-        alert("Por favor escribe una tarea");
+/**
+ * Maneja el registro del usuario
+ */
+function handleRegister(e) {
+    e.preventDefault();
+
+    const nombre = document.getElementById('registerName').value.trim();
+    const email = document.getElementById('registerEmail').value.trim();
+    const password = document.getElementById('registerPassword').value;
+    const confirmPassword = document.getElementById('registerPassword2').value;
+
+    // Validaciones
+    if (!nombre || !email || !password || !confirmPassword) {
+        mostrarNotificacion('Por favor completa todos los campos', 'error');
+        return;
+    }
+
+    if (!validarEmail(email)) {
+        mostrarNotificacion('Por favor ingresa un correo válido', 'error');
+        return;
+    }
+
+    if (nombre.length < 3) {
+        mostrarNotificacion('El nombre debe tener al menos 3 caracteres', 'error');
+        return;
+    }
+
+    if (password.length < 6) {
+        mostrarNotificacion('La contraseña debe tener al menos 6 caracteres', 'error');
+        return;
+    }
+
+    if (password !== confirmPassword) {
+        mostrarNotificacion('Las contraseñas no coinciden', 'error');
+        return;
+    }
+
+    mostrarNotificacion('¡Registro exitoso! Ahora inicia sesión', 'success');
+
+    setTimeout(() => {
+        document.getElementById('registerForm').reset();
+        toggleAuthPanel('login');
+    }, 500);
+}
+
+/**
+ * Maneja logout del usuario
+ */
+function handleLogout() {
+    if (confirm('¿Deseas cerrar sesión?')) {
+        tareas = [];
+        usuarioActual = '';
+        document.getElementById('loginForm').reset();
+        document.getElementById('registerForm').reset();
+        mostrarPantalla('authSection');
+        toggleAuthPanel('login');
+        mostrarNotificacion('Sesión cerrada correctamente', 'success');
+        localStorage.removeItem('taskMasterTareas');
+        localStorage.removeItem('taskMasterUsuario');
+    }
+}
+
+// ========== FUNCIONES DE TAREAS ==========
+
+/**
+ * Maneja agregar nueva tarea
+ */
+function handleAddTask(e) {
+    e.preventDefault();
+
+    const taskInput = document.getElementById('taskInput');
+    const descripcion = taskInput.value.trim();
+
+    if (!descripcion) {
+        mostrarNotificacion('Por favor escribe una tarea', 'error');
+        return;
+    }
+
+    if (descripcion.length < 3) {
+        mostrarNotificacion('La tarea debe tener al menos 3 caracteres', 'error');
         return;
     }
 
     const nuevaTarea = {
         id: Date.now(),
-        descripcion: input.value.trim(),
-        fecha: fechaSeleccionada || "Sin fecha",
-        estado: 'Pendiente'
+        descripcion: descripcion,
+        completada: false,
+        fecha: new Date().toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        })
     };
 
     tareas.push(nuevaTarea);
-    input.value = "";
-    fechaSeleccionada = "";
-    document.getElementById('selectedDateText').innerText = "Sin fecha seleccionada";
-    
-    alert("✓ Tarea guardada correctamente");
-    mostrar('menu');
+    taskInput.value = '';
+    taskInput.focus();
+
+    mostrarNotificacion('✓ Tarea añadida correctamente', 'success');
+    renderizarTareas();
+    guardarDatos();
 }
 
-// Renderizar listas de tareas
-function renderListas() {
-    const listaPendientes = document.getElementById('listaPendientes');
-    const listaCompletadas = document.getElementById('listaCompletadas');
-    
-    if (listaPendientes) {
-        listaPendientes.innerHTML = "";
-        const pendientes = tareas.filter(t => t.estado === 'Pendiente');
-        
-        if (pendientes.length === 0) {
-            listaPendientes.innerHTML = '<li style="text-align: center; color: var(--text-muted); padding: 30px 0;">No hay tareas pendientes</li>';
-        } else {
-            pendientes.forEach(t => {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <div>
-                        <strong>${t.descripcion}</strong>
-                        <br>
-                        <small style="color: var(--text-muted);">📅 ${t.fecha}</small>
-                    </div>
-                    <button class="btn-small-outline" onclick="completarTareaLocal(${t.id})">✓</button>
-                `;
-                listaPendientes.appendChild(li);
-            });
-        }
-    }
-
-    if (listaCompletadas) {
-        listaCompletadas.innerHTML = "";
-        const completadas = tareas.filter(t => t.estado === 'Completada');
-        
-        if (completadas.length === 0) {
-            listaCompletadas.innerHTML = '<li style="text-align: center; color: var(--text-muted); padding: 30px 0;">Aún no hay tareas completadas</li>';
-        } else {
-            completadas.forEach(t => {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <div>
-                        <strong style="text-decoration: line-through; color: var(--text-muted);">${t.descripcion}</strong>
-                        <br>
-                        <small style="color: var(--success);">✓ Completada</small>
-                    </div>
-                `;
-                listaCompletadas.appendChild(li);
-            });
-        }
-    }
-}
-
-// Completar tarea
-function completarTareaLocal(id) {
+/**
+ * Completa o descompleta una tarea
+ */
+function completarTarea(id) {
     const tarea = tareas.find(t => t.id === id);
     if (tarea) {
-        tarea.estado = 'Completada';
-        renderListas();
+        tarea.completada = !tarea.completada;
+        renderizarTareas();
+        mostrarNotificacion(
+            tarea.completada ? '✓ Tarea completada' : '↩ Tarea marcada como pendiente',
+            'success'
+        );
+        guardarDatos();
     }
 }
 
-// Toggle calendario
-function toggleCalendario() {
-    document.getElementById('calendarWrapper').classList.toggle('hidden');
+/**
+ * Elimina una tarea
+ */
+function eliminarTarea(id) {
+    if (confirm('¿Deseas eliminar esta tarea?')) {
+        tareas = tareas.filter(t => t.id !== id);
+        renderizarTareas();
+        mostrarNotificacion('Tarea eliminada', 'success');
+        guardarDatos();
+    }
 }
 
-// Generar calendario
-function generarCalendario() {
-    const container = document.getElementById('calendar2026Full');
-    if (!container) return;
+/**
+ * Renderiza todas las tareas
+ */
+function renderizarTareas() {
+    const pendingContainer = document.getElementById('pendingTasks');
+    const completedContainer = document.getElementById('completedTasks');
+
+    if (!pendingContainer || !completedContainer) return;
+
+    const tareasPendientes = tareas.filter(t => !t.completada);
+    const tareasCompletadas = tareas.filter(t => t.completada);
+
+    // Renderizar tareas pendientes
+    if (tareasPendientes.length === 0) {
+        pendingContainer.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">📝</div>
+                <div class="empty-state-text">No hay tareas pendientes</div>
+            </div>
+        `;
+    } else {
+        pendingContainer.innerHTML = '';
+        tareasPendientes.forEach(tarea => {
+            pendingContainer.appendChild(crearElementoTarea(tarea, false));
+        });
+    }
+
+    // Renderizar tareas completadas
+    if (tareasCompletadas.length === 0) {
+        completedContainer.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">🎯</div>
+                <div class="empty-state-text">Aún no hay tareas completadas</div>
+            </div>
+        `;
+    } else {
+        completedContainer.innerHTML = '';
+        tareasCompletadas.forEach(tarea => {
+            completedContainer.appendChild(crearElementoTarea(tarea, true));
+        });
+    }
+}
+
+/**
+ * Crea el elemento HTML de una tarea
+ */
+function crearElementoTarea(tarea, completada) {
+    const div = document.createElement('div');
+    div.className = 'task-item';
     
-    const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    div.innerHTML = `
+        <div class="task-content">
+            <div class="task-description ${completada ? 'task-completed' : ''}">
+                ${escaparHTML(tarea.descripcion)}
+            </div>
+            <div class="task-date">${tarea.fecha}</div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button class="btn-complete" onclick="completarTarea(${tarea.id})" title="Marcar como ${completada ? 'pendiente' : 'completada'}">
+                ${completada ? 'Deshacer' : 'Completar'}
+            </button>
+        </div>
+    `;
     
-    meses.forEach((mes, i) => {
-        const box = document.createElement('div');
-        box.className = "month-box";
-        box.innerHTML = `<h4>${mes}</h4>`;
-        
-        const grid = document.createElement('div');
-        grid.className = "days-grid";
-        
-        const dias = new Date(2026, i + 1, 0).getDate();
-        
-        for (let d = 1; d <= dias; d++) {
-            const day = document.createElement('div');
-            day.className = "day";
-            day.innerText = d;
-            day.onclick = () => {
-                fechaSeleccionada = `${d} de ${mes}, 2026`;
-                document.getElementById('selectedDateText').innerText = fechaSeleccionada;
-                toggleCalendario();
-            };
-            grid.appendChild(day);
-        }
-        
-        box.appendChild(grid);
-        container.appendChild(box);
+    return div;
+}
+
+// ========== FUNCIONES UTILITARIAS ==========
+
+/**
+ * Escapa caracteres HTML para evitar inyecciones
+ */
+function escaparHTML(texto) {
+    const div = document.createElement('div');
+    div.textContent = texto;
+    return div.innerHTML;
+}
+
+/**
+ * Muestra/oculta pantallas
+ */
+function mostrarPantalla(seccion) {
+    document.querySelectorAll('.container > div').forEach(el => {
+        el.classList.remove('active');
     });
+    document.getElementById(seccion).classList.add('active');
 }
 
-// Cerrar sesión
-function cerrarSesion() {
-    if (confirm("¿Deseas cerrar sesión?")) {
-        mostrar('login');
-        document.getElementById('loginEmail').value = '';
-        document.getElementById('loginPassword').value = '';
+/**
+ * Muestra notificaciones visuales
+ */
+function mostrarNotificacion(mensaje, tipo = 'success') {
+    // Crear elemento de notificación
+    const notif = document.createElement('div');
+    notif.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 16px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 14px;
+        z-index: 9999;
+        animation: slideInRight 0.4s ease;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        max-width: 350px;
+        word-wrap: break-word;
+    `;
+
+    if (tipo === 'success') {
+        notif.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+        notif.style.color = 'white';
+    } else if (tipo === 'error') {
+        notif.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+        notif.style.color = 'white';
+    }
+
+    notif.textContent = mensaje;
+    document.body.appendChild(notif);
+
+    // Remover notificación después de 3 segundos
+    setTimeout(() => {
+        notif.style.animation = 'slideOutRight 0.4s ease';
+        setTimeout(() => {
+            notif.remove();
+        }, 400);
+    }, 3000);
+}
+
+// ========== ALMACENAMIENTO LOCAL ==========
+
+/**
+ * Guarda datos en localStorage
+ */
+function guardarDatos() {
+    localStorage.setItem('taskMasterTareas', JSON.stringify(tareas));
+    localStorage.setItem('taskMasterUsuario', usuarioActual);
+}
+
+/**
+ * Carga datos desde localStorage
+ */
+function cargarDatos() {
+    const tareasGuardadas = localStorage.getItem('taskMasterTareas');
+    const usuarioGuardado = localStorage.getItem('taskMasterUsuario');
+
+    if (tareasGuardadas) {
+        tareas = JSON.parse(tareasGuardadas);
+    }
+
+    if (usuarioGuardado) {
+        usuarioActual = usuarioGuardado;
     }
 }
-
-// Inicializar
-window.addEventListener('load', () => {
-    generarCalendario();
-    mostrar('login');
-});;
