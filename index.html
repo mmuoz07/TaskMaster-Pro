@@ -1,3 +1,12 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskMaster Pro</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="javascript.js" defer></script>
+</head>
 <body>
     <main class="app-container">
         
@@ -10,6 +19,42 @@
                     <button class="btn-primary" onclick="mostrar('login')">ACCEDER</button>
                     <button class="btn-outline" onclick="mostrar('registro')">CREAR CUENTA</button>
                 </div>
+            </div>
+        </section>
+
+        <section id="login" class="screen">
+            <div class="form-card">
+                <h2>Acceso Institucional</h2>
+                <div class="input-group">
+                    <label>Email Corporativo</label>
+                    <input type="email" placeholder="Email Corporativo">
+                </div>
+                <div class="input-group">
+                    <label>Contraseña</label>
+                    <input type="password" placeholder="Contraseña">
+                </div>
+                <button class="btn-primary full-width" onclick="ejecutarLogin()">AUTENTICAR</button>
+                <button class="btn-link full-width" onclick="mostrar('inicio')">VOLVER AL INICIO</button>
+            </div>
+        </section>
+
+        <section id="registro" class="screen">
+            <div class="form-card">
+                <h2>Crear Perfil Pro</h2>
+                <div class="input-group">
+                    <label>Nombre Completo</label>
+                    <input type="text" placeholder="Nombre Completo">
+                </div>
+                <div class="input-group">
+                    <label>Email Corporativo</label>
+                    <input type="email" placeholder="Email Corporativo">
+                </div>
+                <div class="input-group">
+                    <label>Contraseña</label>
+                    <input type="password" placeholder="Contraseña">
+                </div>
+                <button class="btn-primary full-width" onclick="ejecutarRegistro()">REGISTRAR CUENTA</button>
+                <button class="btn-link full-width" onclick="mostrar('inicio')">VOLVER AL INICIO</button>
             </div>
         </section>
 
@@ -41,23 +86,39 @@
         </section>
 
         <section id="nueva" class="screen">
-            <div class="form-card"> <h2>Configurar Registro</h2>
-                <div class="input-group">
-                    <label>Nombre del Proyecto</label>
-                    <input type="text" id="taskInput" placeholder="Descripción técnica...">
+            <div class="content-layout">
+                <div class="form-card">
+                    <h2>Configurar Registro</h2>
+                    <div class="input-group">
+                        <label>Nombre del Proyecto</label>
+                        <input type="text" id="taskInput" placeholder="Descripción técnica...">
+                    </div>
+                    <div class="date-selector">
+                        <button class="btn-outline full-width" onclick="toggleCalendario()">DEFINIR PLAZO</button>
+                        <p id="selectedDateText" class="date-display">Pendiente de fecha</p>
+                    </div>
+                    <button class="btn-primary full-width" onclick="agregarTarea()">CONFIRMAR REGISTRO</button>
+                    <button class="btn-link full-width" onclick="mostrar('menu')">CANCELAR</button>
                 </div>
-                <div class="date-selector">
-                    <button class="btn-outline full-width" onclick="toggleCalendario()">DEFINIR PLAZO</button>
-                    <p id="selectedDateText" class="date-display">Pendiente de fecha</p>
-                </div>
-                <button class="btn-primary full-width" onclick="agregarTarea()">CONFIRMAR REGISTRO</button>
-                <button class="btn-link full-width" onclick="mostrar('menu')">CANCELAR</button>
+
+                <aside id="calendarWrapper" class="calendar-sidebar hidden">
+                    <div class="year-view" id="calendar2026Full"></div>
+                </aside>
             </div>
         </section>
 
         <section id="pendientes" class="screen">
-            <h2>Tareas en Curso</h2> <div class="table-container">
+            <h2>Tareas en Curso</h2>
+            <div class="table-container">
                 <ul id="listaPendientes" class="modern-list"></ul>
+            </div>
+            <button class="btn-primary full-width" onclick="mostrar('menu')">REGRESAR AL PANEL</button>
+        </section>
+
+        <section id="completadas" class="screen">
+            <h2>Historial de Éxito</h2>
+            <div class="table-container">
+                <ul id="listaCompletadas" class="modern-list"></ul>
             </div>
             <button class="btn-primary full-width" onclick="mostrar('menu')">REGRESAR AL PANEL</button>
         </section>
