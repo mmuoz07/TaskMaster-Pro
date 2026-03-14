@@ -3,125 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskMaster Pro</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="javascript.js" defer></script>
+    <title>TaskMaster Pro - Gestor de Tareas</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <main class="app-container">
-        
-        <section id="inicio" class="screen active flex-center">
-            <div class="hero-section">
-                <div class="brand-badge">PRODUCTIVIDAD PRO</div>
-                <h1 class="logo-text">TASKMASTER<span>PRO</span></h1>
-                <p class="hero-subtitle">Gestiona tus tareas con una interfaz limpia y eficiente. Sin complicaciones, solo rendimiento.</p>
-                <div class="auth-buttons">
-                    <button class="btn-primary" onclick="mostrar('login')">INICIAR SESIÓN</button>
-                    <button class="btn-outline" onclick="mostrar('registro')">REGISTRARSE</button>
+    <!-- Contenedor Principal -->
+    <div class="container">
+        <!-- Sección de Bienvenida/Autenticación -->
+        <div id="authSection" class="auth-section active">
+            <!-- Panel de Login -->
+            <div id="loginPanel" class="auth-panel active">
+                <div class="auth-header">
+                    <h1 class="app-title">TaskMaster Pro</h1>
+                    <p class="app-subtitle">Gestor de tareas minimalista</p>
                 </div>
-            </div>
-        </section>
 
-        <section id="login" class="screen flex-center">
-            <div class="form-card">
-                <h2>Acceso de Usuario</h2>
-                <div class="input-group">
-                    <label>Correo Electrónico</label>
-                    <input type="email" id="emailLogin" placeholder="ejemplo@correo.com">
-                </div>
-                <div class="input-group">
-                    <label>Contraseña</label>
-                    <input type="password" id="passLogin" placeholder="••••••••">
-                </div>
-                <button class="btn-primary full-width" onclick="loginSimulado()">ENTRAR</button>
-                <button class="btn-link full-width" onclick="mostrar('inicio')">VOLVER AL INICIO</button>
-            </div>
-        </section>
-
-        <section id="registro" class="screen flex-center">
-            <div class="form-card">
-                <h2>Crear Cuenta</h2>
-                <div class="input-group">
-                    <label>Nombre Completo</label>
-                    <input type="text" id="regNombre" placeholder="Tu nombre">
-                </div>
-                <div class="input-group">
-                    <label>Email</label>
-                    <input type="email" id="regEmail" placeholder="correo@ejemplo.com">
-                </div>
-                <div class="input-group">
-                    <label>Contraseña</label>
-                    <input type="password" id="regPass" placeholder="Crear contraseña">
-                </div>
-                <button class="btn-primary full-width" onclick="loginSimulado()">REGISTRAR CUENTA</button>
-                <button class="btn-link full-width" onclick="mostrar('inicio')">VOLVER AL INICIO</button>
-            </div>
-        </section>
-
-        <section id="menu" class="screen">
-            <header class="main-header">
-                <div>
-                    <h2 class="no-margin">Panel Principal</h2>
-                    <p class="text-muted">Estado: Sesión Activa</p>
-                </div>
-                <button class="btn-small-outline" onclick="mostrar('inicio')">SALIR</button>
-            </header>
-            <div class="dashboard-grid">
-                <div class="nav-card" onclick="mostrar('nueva')">
-                    <div class="status-indicator"></div>
-                    <h3>Nueva Tarea</h3>
-                    <p>Añadir registro</p>
-                </div>
-                <div class="nav-card" onclick="mostrar('pendientes')">
-                    <div class="status-indicator active"></div>
-                    <h3>Pendientes</h3>
-                    <p>Ver en curso</p>
-                </div>
-                <div class="nav-card" onclick="mostrar('completadas')">
-                    <div class="status-indicator success"></div>
-                    <h3>Completadas</h3>
-                    <p>Ver historial</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="nueva" class="screen">
-            <div class="content-layout">
-                <div class="form-card">
-                    <h2>Configurar Tarea</h2>
-                    <div class="input-group">
-                        <label>Descripción</label>
-                        <input type="text" id="taskInput" placeholder="¿Qué hay que hacer?">
+                <form class="auth-form" id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" placeholder="tu@email.com" required>
                     </div>
-                    <div class="date-selector">
-                        <button class="btn-outline full-width" onclick="toggleCalendario()">SELECCIONAR FECHA</button>
-                        <p id="selectedDateText" class="date-display">Sin fecha seleccionada</p>
+                    <div class="form-group">
+                        <label for="loginPassword">Contraseña</label>
+                        <input type="password" id="loginPassword" placeholder="••••••••" required>
                     </div>
-                    <button class="btn-primary full-width" onclick="agregarTareaLocal()">GUARDAR TAREA</button>
-                    <button class="btn-link full-width" onclick="mostrar('menu')">CANCELAR</button>
+                    <button type="submit" class="btn btn-primary btn-block">Iniciar Sesión</button>
+                </form>
+
+                <div class="auth-footer">
+                    <p>¿No tienes cuenta? <a href="#" class="toggle-auth" data-panel="register">Regístrate aquí</a></p>
                 </div>
-                <aside id="calendarWrapper" class="calendar-sidebar hidden">
-                    <div class="year-view" id="calendar2026Full"></div>
-                </aside>
             </div>
-        </section>
 
-        <section id="pendientes" class="screen">
-            <h2>Tareas en Curso</h2>
-            <div class="table-container">
-                <ul id="listaPendientes" class="modern-list"></ul>
+            <!-- Panel de Registro -->
+            <div id="registerPanel" class="auth-panel">
+                <div class="auth-header">
+                    <h1 class="app-title">TaskMaster Pro</h1>
+                    <p class="app-subtitle">Crea tu cuenta</p>
+                </div>
+
+                <form class="auth-form" id="registerForm">
+                    <div class="form-group">
+                        <label for="registerName">Nombre Completo</label>
+                        <input type="text" id="registerName" placeholder="Tu Nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email</label>
+                        <input type="email" id="registerEmail" placeholder="tu@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Contraseña</label>
+                        <input type="password" id="registerPassword" placeholder="••••••••" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword2">Confirmar Contraseña</label>
+                        <input type="password" id="registerPassword2" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Crear Cuenta</button>
+                </form>
+
+                <div class="auth-footer">
+                    <p>¿Ya tienes cuenta? <a href="#" class="toggle-auth" data-panel="login">Inicia sesión aquí</a></p>
+                </div>
             </div>
-            <button class="btn-primary full-width" onclick="mostrar('menu')">REGRESAR AL PANEL</button>
-        </section>
+        </div>
 
-        <section id="completadas" class="screen">
-            <h2>Historial</h2>
-            <div class="table-container">
-                <ul id="listaCompletadas" class="modern-list"></ul>
+        <!-- Sección de Tareas (Panel Principal) -->
+        <div id="tasksSection" class="tasks-section">
+            <div class="tasks-header">
+                <div class="header-top">
+                    <h2 class="welcome-message">Bienvenido, <span id="userName">Usuario</span></h2>
+                    <button class="btn btn-logout" id="logoutBtn">Cerrar Sesión</button>
+                </div>
             </div>
-            <button class="btn-primary full-width" onclick="mostrar('menu')">REGRESAR AL PANEL</button>
-        </section>
 
-    </main>
+            <div class="tasks-container">
+                <!-- Sección: Agregar Nueva Tarea -->
+                <div class="add-task-section">
+                    <form id="addTaskForm" class="add-task-form">
+                        <input type="text" id="taskInput" placeholder="Añade una nueva tarea..." required>
+                        <button type="submit" class="btn btn-add">+ Añadir</button>
+                    </form>
+                </div>
+
+                <!-- Sección: Tareas Pendientes -->
+                <div class="tasks-grid">
+                    <div class="task-column">
+                        <h3 class="column-title">📋 Tareas Pendientes</h3>
+                        <div id="pendingTasks" class="task-list">
+                            <!-- Las tareas se generarán aquí con JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Sección: Tareas Completadas -->
+                    <div class="task-column">
+                        <h3 class="column-title">✅ Tareas Completadas</h3>
+                        <div id="completedTasks" class="task-list">
+                            <!-- Las tareas completadas se generarán aquí -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
