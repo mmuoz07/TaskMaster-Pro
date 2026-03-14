@@ -1,306 +1,233 @@
-// ========== VARIABLES GLOBALES ==========
-let tareas = [];
-let usuarioActual = "";
+let tareasPendientes = [];
+let tareasCompletadas = [];
+let fechaSeleccionada = ""; 
+let fechaSQL = "";          
 
-// ========== INICIALIZACIÓN ==========
-document.addEventListener('DOMContentLoaded', () => {
-    inicializarApp();
-    cargarDatos();
-});
-
-function inicializarApp() {
-    // Event listeners autenticación
-    document.getElementById('loginForm')?.addEventListener('submit', handleLogin);
-    document.getElementById('registerForm')?.addEventListener('submit', handleRegister);
+/**
+ * Control de navegación entre pantallas
+ */
+function mostrar(id) {
+    // Ocultar todas las pantallas
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     
-    document.querySelectorAll('.toggle-auth').forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            toggleAuthPanel(link.dataset.panel);
+    // Activar la pantalla objetivo
+    const target = document.getElementById(id);
+    if (target) {
+        target.classList.add('active');
+    }
+
+    // Cargar datos específicos según la pantalla
+    if (id === 'pendientes') renderPendientes();
+    if (id === 'completadas') renderCompletadas();
+}
+
+// --- LLAMADAS A LA API PHP ---
+
+async function ejecutarRegistro() {
+    const section = document.getElementById('registro');
+    const nombre = section.querySelector('input[placeholder="Nombre Completo"]').value;
+    const email = section.querySelector('input[placeholder="Email Corporativo"]').value;
+    const pass = section.querySelector('input[placeholder="Contraseña"]').value;
+
+    if (!nombre || !email || !pass) return alert("Por favor, rellene todos los campos.");
+
+    try {
+        const res = await fetch('api.php?action=register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nombre_completo: nombre, email_corporativo: email, password: pass })
         });
-    });
-
-    document.getElementById('logoutBtn')?.addEventListener('click', handleLogout);
-    document.getElementById('addTaskForm')?.addEventListener('submit', handleAddTask);
-
-    mostrarSeccion('auth');
-}
-
-// ========== AUTENTICACIÓN ==========
-
-function toggleAuthPanel(panel) {
-    document.querySelectorAll('.auth-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById(panel + 'Panel').classList.add('active');
-}
-
-function validarEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-function handleLogin(e) {
-    e.preventDefault();
-
-    const email = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPassword').value;
-
-    if (!email || !password) {
-        mostrarNotificacion('Por favor completa todos los campos', 'error');
-        return;
-    }
-
-    if (!validarEmail(email)) {
-        mostrarNotificacion('Correo inválido', 'error');
-        return;
-    }
-
-    if (password.length < 6) {
-        mostrarNotificacion('Contraseña debe tener 6+ caracteres', 'error');
-        return;
-    }
-
-    usuarioActual = email.split('@')[0];
-    mostrarNotificacion('¡Bienvenido ' + usuarioActual + '!', 'success');
-
-    setTimeout(() => {
-        document.getElementById('userName').textContent = usuarioActual.charAt(0).toUpperCase() + usuarioActual.slice(1);
-        document.getElementById('loginForm').reset();
-        mostrarSeccion('tasks');
-        renderizarTareas();
-    }, 800);
-}
-
-function handleRegister(e) {
-    e.preventDefault();
-
-    const nombre = document.getElementById('registerName').value.trim();
-    const email = document.getElementById('registerEmail').value.trim();
-    const password = document.getElementById('registerPassword').value;
-    const confirmPassword = document.getElementById('registerPassword2').value;
-
-    if (!nombre || !email || !password || !confirmPassword) {
-        mostrarNotificacion('Completa todos los campos', 'error');
-        return;
-    }
-
-    if (!validarEmail(email)) {
-        mostrarNotificacion('Correo inválido', 'error');
-        return;
-    }
-
-    if (nombre.length < 3) {
-        mostrarNotificacion('Nombre debe tener 3+ caracteres', 'error');
-        return;
-    }
-
-    if (password.length < 6) {
-        mostrarNotificacion('Contraseña debe tener 6+ caracteres', 'error');
-        return;
-    }
-
-    if (password !== confirmPassword) {
-        mostrarNotificacion('Las contraseñas no coinciden', 'error');
-        return;
-    }
-
-    mostrarNotificacion('¡Registro exitoso! Inicia sesión', 'success');
-
-    setTimeout(() => {
-        document.getElementById('registerForm').reset();
-        toggleAuthPanel('login');
-    }, 800);
-}
-
-function handleLogout() {
-    if (confirm('¿Cerrar sesión?')) {
-        tareas = [];
-        usuarioActual = '';
-        document.getElementById('loginForm').reset();
-        document.getElementById('registerForm').reset();
-        mostrarSeccion('auth');
-        toggleAuthPanel('login');
-        mostrarNotificacion('Sesión cerrada', 'success');
-        localStorage.clear();
+        if (res.ok) { 
+            alert("Perfil profesional creado correctamente."); 
+            mostrar('login'); 
+        }
+    } catch (error) {
+        alert("Error en el servidor de registro.");
     }
 }
 
-// ========== TAREAS ==========
+async function ejecutarLogin() {
+    const section = document.getElementById('login');
+    const email = section.querySelector('input[placeholder="Email Corporativo"]').value;
+    const pass = section.querySelector('input[placeholder="Contraseña"]').value;
 
-function handleAddTask(e) {
-    e.preventDefault();
+    if (!email || !pass) return alert("Ingrese credenciales.");
 
-    const taskInput = document.getElementById('taskInput');
-    const descripcion = taskInput.value.trim();
-
-    if (!descripcion) {
-        mostrarNotificacion('Escribe una tarea', 'error');
-        return;
-    }
-
-    if (descripcion.length < 3) {
-        mostrarNotificacion('Tarea muy corta (mín 3 caracteres)', 'error');
-        return;
-    }
-
-    const nuevaTarea = {
-        id: Date.now(),
-        descripcion: descripcion,
-        completada: false,
-        fecha: new Date().toLocaleDateString('es-ES', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        })
-    };
-
-    tareas.push(nuevaTarea);
-    taskInput.value = '';
-    taskInput.focus();
-
-    mostrarNotificacion('✓ Tarea añadida', 'success');
-    renderizarTareas();
-    guardarDatos();
-}
-
-function completarTarea(id) {
-    const tarea = tareas.find(t => t.id === id);
-    if (tarea) {
-        tarea.completada = !tarea.completada;
-        renderizarTareas();
-        guardarDatos();
+    try {
+        const res = await fetch('api.php?action=login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email_corporativo: email, password: pass })
+        });
+        
+        const data = await res.json();
+        if (res.ok) { 
+            alert("Autenticación exitosa. Bienvenido " + data.usuario); 
+            cargarTareasDesdeDB(); 
+            mostrar('menu'); 
+        } else { 
+            alert("Acceso denegado: Verifique sus credenciales."); 
+        }
+    } catch (error) {
+        alert("Error de conexión con el servidor.");
     }
 }
 
-function eliminarTarea(id) {
-    if (confirm('¿Eliminar tarea?')) {
-        tareas = tareas.filter(t => t.id !== id);
-        mostrarNotificacion('Tarea eliminada', 'success');
-        renderizarTareas();
-        guardarDatos();
+async function cargarTareasDesdeDB() {
+    try {
+        const res = await fetch('api.php?action=tareas');
+        const data = await res.json();
+        
+        // Mapeo de datos desde la base de datos
+        tareasPendientes = data.filter(t => t.estado === 'Pendiente').map(t => ({
+            id: t.id, 
+            titulo: t.descripcion, 
+            fecha: t.fecha_vencimiento || "Plazo no definido"
+        }));
+        
+        tareasCompletadas = data.filter(t => t.estado === 'Completada').map(t => ({
+            id: t.id, 
+            titulo: t.descripcion
+        }));
+        
+        renderPendientes();
+    } catch (e) { 
+        console.error("Error al sincronizar tareas"); 
     }
 }
 
-function renderizarTareas() {
-    const pendingContainer = document.getElementById('pendingTasks');
-    const completedContainer = document.getElementById('completedTasks');
+async function agregarTarea() {
+    const input = document.getElementById('taskInput');
+    if (!input.value) return alert("Describa la tarea antes de guardar.");
 
-    const tareasPendientes = tareas.filter(t => !t.completada);
-    const tareasCompletadas = tareas.filter(t => t.completada);
+    try {
+        const res = await fetch('api.php?action=tareas', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                descripcion: input.value, 
+                fecha_vencimiento: fechaSQL 
+            })
+        });
 
-    // Actualizar contadores
-    document.getElementById('pendingCount').textContent = tareasPendientes.length;
-    document.getElementById('completedCount').textContent = tareasCompletadas.length;
+        if (res.ok) {
+            await cargarTareasDesdeDB();
+            // Resetear formulario
+            input.value = "";
+            fechaSQL = "";
+            document.getElementById('selectedDateText').innerText = "Seleccionar fecha";
+            alert("Tarea registrada en el sistema.");
+            mostrar('menu');
+        }
+    } catch (error) {
+        alert("No se pudo guardar la tarea.");
+    }
+}
 
-    // Pendientes
+// --- RENDERIZADO DE INTERFAZ ---
+
+function renderPendientes() {
+    const lista = document.getElementById('listaPendientes');
+    if (!lista) return;
+    
+    lista.innerHTML = "";
+    
     if (tareasPendientes.length === 0) {
-        pendingContainer.innerHTML = '<div class="empty-message"><p>📝 Crea tu primera tarea</p></div>';
-    } else {
-        pendingContainer.innerHTML = '';
-        tareasPendientes.forEach(tarea => {
-            pendingContainer.appendChild(crearElementoTarea(tarea));
-        });
+        lista.innerHTML = "<p class='text-muted'>No hay tareas pendientes en el registro.</p>";
+        return;
     }
 
-    // Completadas
-    if (tareasCompletadas.length === 0) {
-        completedContainer.innerHTML = '<div class="empty-message"><p>🎯 Completa tus primeras tareas</p></div>';
-    } else {
-        completedContainer.innerHTML = '';
-        tareasCompletadas.forEach(tarea => {
-            completedContainer.appendChild(crearElementoTarea(tarea, true));
-        });
-    }
-}
-
-function crearElementoTarea(tarea, completada = false) {
-    const div = document.createElement('div');
-    div.className = `task-item ${completada ? 'completed' : ''}`;
-    
-    div.innerHTML = `
-        <div class="task-content">
-            <div class="task-text">${escaparHTML(tarea.descripcion)}</div>
-            <div class="task-date">${tarea.fecha}</div>
-        </div>
-        <div class="task-actions">
-            <button class="btn-complete" onclick="completarTarea(${tarea.id})">
-                ${completada ? 'Deshacer' : '✓'}
-            </button>
-        </div>
-    `;
-    
-    return div;
-}
-
-// ========== UTILIDADES ==========
-
-function escaparHTML(texto) {
-    const div = document.createElement('div');
-    div.textContent = texto;
-    return div.innerHTML;
-}
-
-function mostrarSeccion(seccion) {
-    document.querySelectorAll('.auth-section, .tasks-section').forEach(el => {
-        el.classList.remove('active');
+    tareasPendientes.forEach((t, i) => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <div>
+                <strong>${t.titulo}</strong>
+                <small>${t.fecha}</small>
+            </div>
+            <button class="btn-small-outline" onclick="completarTarea(${i})">✓ FINALIZAR</button>
+        `;
+        lista.appendChild(li);
     });
-
-    if (seccion === 'auth') {
-        document.getElementById('authSection').classList.add('active');
-    } else if (seccion === 'tasks') {
-        document.getElementById('tasksSection').classList.add('active');
-    }
 }
 
-function mostrarNotificacion(mensaje, tipo = 'success') {
-    const notif = document.createElement('div');
-    notif.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 16px 24px;
-        border-radius: 10px;
-        font-weight: 600;
-        font-size: 14px;
-        z-index: 9999;
-        animation: slideUp 0.4s ease;
-        max-width: 350px;
-        word-wrap: break-word;
-    `;
-
-    if (tipo === 'success') {
-        notif.style.background = 'linear-gradient(135deg, #48bb78, #38a169)';
-        notif.style.color = 'white';
-        notif.style.boxShadow = '0 8px 16px rgba(72, 187, 120, 0.3)';
-    } else {
-        notif.style.background = 'linear-gradient(135deg, #f56565, #e53e3e)';
-        notif.style.color = 'white';
-        notif.style.boxShadow = '0 8px 16px rgba(245, 101, 101, 0.3)';
-    }
-
-    notif.textContent = mensaje;
-    document.body.appendChild(notif);
-
-    setTimeout(() => {
-        notif.style.animation = 'slideDown 0.4s ease';
-        setTimeout(() => notif.remove(), 400);
-    }, 3500);
+function completarTarea(i) {
+    // Aquí podrías añadir una llamada fetch para actualizar el estado en la DB
+    const movida = tareasPendientes.splice(i, 1)[0];
+    tareasCompletadas.push(movida);
+    renderPendientes();
 }
 
-// ========== ALMACENAMIENTO ==========
+function renderCompletadas() {
+    const lista = document.getElementById('listaCompletadas');
+    if (!lista) return;
 
-function guardarDatos() {
-    localStorage.setItem('taskMasterTareas', JSON.stringify(tareas));
-    localStorage.setItem('taskMasterUsuario', usuarioActual);
-}
+    lista.innerHTML = "";
 
-function cargarDatos() {
-    const tareasGuardadas = localStorage.getItem('taskMasterTareas');
-    const usuarioGuardado = localStorage.getItem('taskMasterUsuario');
-
-    if (tareasGuardadas) {
-        tareas = JSON.parse(tareasGuardadas);
+    if (tareasCompletadas.length === 0) {
+        lista.innerHTML = "<p class='text-muted'>El historial está vacío.</p>";
+        return;
     }
 
-    if (usuarioGuardado) {
+    tareasCompletadas.forEach(t => {
+        const li = document.createElement('li');
+        li.style.opacity = "0.6";
+        li.innerHTML = `<span>${t.titulo}</span> <small style="color:var(--success)">COMPLETADA</small>`;
+        lista.appendChild(li);
+    });
+}
+
+// --- CALENDARIO PROFESIONAL ---
+
+function toggleCalendario() { 
+    document.getElementById('calendarWrapper').classList.toggle('hidden'); 
+}
+
+function generarCalendarioCompleto() {
+    const container = document.getElementById('calendar2026Full');
+    if (!container) return;
+    
+    container.innerHTML = ""; // Limpiar contenido previo
+    
+    const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    
+    meses.forEach((mes, mesIndex) => {
+        const monthBox = document.createElement('div');
+        monthBox.className = "month-box";
+
+        const title = document.createElement('h4');
+        title.innerText = mes;
+        monthBox.appendChild(title);
+
+        const daysGrid = document.createElement('div');
+        daysGrid.className = "days-grid";
+
+        const numDias = new Date(2026, mesIndex + 1, 0).getDate();
+
+        for (let d = 1; d <= numDias; d++) {
+            const day = document.createElement('div');
+            day.className = "day"; 
+            day.innerText = d;
+            
+            day.onclick = () => {
+                fechaSeleccionada = `${d} ${mes}, 2026`;
+                const mIso = String(mesIndex + 1).padStart(2, '0');
+                const dIso = String(d).padStart(2, '0');
+                fechaSQL = `2026-${mIso}-${dIso}`;
+                
+                document.getElementById('selectedDateText').innerText = fechaSeleccionada;
+                toggleCalendario();
+            };
+            daysGrid.appendChild(day);
+        }
+        monthBox.appendChild(daysGrid);
+        container.appendChild(monthBox);
+    });
+}
+
+// Inicialización
+window.onload = () => {
+    generarCalendarioCompleto();
+};
         usuarioActual = usuarioGuardado;
     }
 }
