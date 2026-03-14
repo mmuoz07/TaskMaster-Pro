@@ -1,7 +1,7 @@
 let tareasPendientes = [];
 let tareasCompletadas = [];
 let fechaSeleccionada = ""; 
-let fechaSQL = "";          
+let fechaSQL = "";           
 
 // --- FUNCIONES DE NAVEGACIÓN ---
 function mostrar(id) {
@@ -13,11 +13,13 @@ function mostrar(id) {
     if (id === 'completadas') renderCompletadas();
 }
 
-// --- REGISTRO DIRECTO ---
+// --- REGISTRO ---
 async function ejecutarRegistro() {
-    const nombre = document.querySelector('input[placeholder="Nombre Completo"]').value;
-    const email = document.querySelector('input[placeholder="Email Corporativo"]').value;
-    const pass = document.querySelector('input[placeholder="Contraseña"]').value;
+    const nombre = document.getElementById('regNombre').value;
+    const email = document.getElementById('regEmail').value;
+    const pass = document.getElementById('regPass').value;
+
+    if (!nombre || !email || !pass) return alert("Rellena todos los campos.");
 
     try {
         const res = await fetch('/api/auth/register', {
@@ -36,10 +38,10 @@ async function ejecutarRegistro() {
     }
 }
 
-// --- LOGIN DIRECTO ---
+// --- LOGIN ---
 async function ejecutarLogin() {
-    const email = document.querySelector('input[placeholder="Correo Electrónico"]').value;
-    const pass = document.querySelectorAll('input[placeholder="Contraseña"]')[0].value;
+    const email = document.getElementById('emailUser').value;
+    const pass = document.getElementById('passUser').value;
 
     try {
         const res = await fetch('/api/auth/login', {
@@ -89,7 +91,7 @@ async function agregarTarea() {
     const input = document.getElementById('taskInput');
     const texto = input.value;
 
-    if (!texto) return alert("Escribe algo.");
+    if (!texto) return alert("Escribe una descripción.");
 
     const nuevaTarea = {
         descripcion: texto,
@@ -105,6 +107,7 @@ async function agregarTarea() {
 
         if (response.ok) {
             await cargarTareasDesdeDB();
+            // Limpiar formulario
             input.value = "";
             fechaSeleccionada = "";
             fechaSQL = "";
@@ -121,7 +124,7 @@ async function agregarTarea() {
 function renderPendientes() {
     const lista = document.getElementById('listaPendientes');
     if (!lista) return;
-    lista.innerHTML = tareasPendientes.length ? "" : "<p>No hay tareas</p>";
+    lista.innerHTML = tareasPendientes.length ? "" : "<p>No hay tareas pendientes</p>";
 
     tareasPendientes.forEach((t, i) => {
         const li = document.createElement('li');
@@ -130,13 +133,15 @@ function renderPendientes() {
                 <strong>${t.titulo}</strong><br>
                 <small>${t.fecha}</small>
             </div>
-            <button onclick="completarTarea(${i})">✓</button>
+            <button class="tick-btn" onclick="completarTarea(${i})">✓</button>
         `;
         lista.appendChild(li);
     });
 }
 
-function completarTarea(i) {
+async function completarTarea(i) {
+    const tarea = tareasPendientes[i];
+    // Aquí podrías añadir un fetch PUT para actualizar en DB
     const movida = tareasPendientes.splice(i, 1)[0];
     tareasCompletadas.push(movida);
     renderPendientes();
@@ -145,7 +150,7 @@ function completarTarea(i) {
 function renderCompletadas() {
     const lista = document.getElementById('listaCompletadas');
     if (!lista) return;
-    lista.innerHTML = tareasCompletadas.length ? "" : "<p>Vacío</p>";
+    lista.innerHTML = tareasCompletadas.length ? "" : "<p>No hay tareas completadas</p>";
 
     tareasCompletadas.forEach((t) => {
         const li = document.createElement('li');
@@ -156,21 +161,24 @@ function renderCompletadas() {
 
 // --- CALENDARIO ---
 function toggleCalendario() {
-    document.getElementById('calendarWrapper').classList.toggle('hidden');
+    const wrapper = document.getElementById('calendarWrapper');
+    if (wrapper) wrapper.classList.toggle('hidden');
 }
 
 function generarCalendarioCompleto() {
     const container = document.getElementById('calendar2026Full');
     if (!container) return;
+    
+    container.innerHTML = ""; // Limpiar antes de generar
     const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
     meses.forEach((mes, mesIndex) => {
-        const monthContainer = document.createElement('div');
-        monthContainer.className = "month-container";
-        const title = document.createElement('div');
-        title.className = "month-title";
+        const monthBox = document.createElement('div');
+        monthBox.className = "month-box";
+        
+        const title = document.createElement('h4');
         title.innerText = mes;
-        monthContainer.appendChild(title);
+        monthBox.appendChild(title);
 
         const daysGrid = document.createElement('div');
         daysGrid.className = "days-grid";
@@ -181,17 +189,22 @@ function generarCalendarioCompleto() {
             day.className = "day";
             day.innerText = d;
             day.onclick = () => {
-                fechaSeleccionada = `${d} ${mes}, 2026`;
+                // Quitar selección previa
+                document.querySelectorAll('.day').forEach(el => el.classList.remove('selected'));
+                day.classList.add('selected');
+                
+                fechaSeleccionada = `${d} de ${mes}, 2026`;
                 const mesIso = String(mesIndex + 1).padStart(2, '0');
                 const diaIso = String(d).padStart(2, '0');
                 fechaSQL = `2026-${mesIso}-${diaIso}`;
+                
                 document.getElementById('selectedDateText').innerText = fechaSeleccionada;
-                toggleCalendario();
+                toggleCalendario(); // Cerrar al seleccionar
             };
             daysGrid.appendChild(day);
         }
-        monthContainer.appendChild(daysGrid);
-        container.appendChild(monthContainer);
+        monthBox.appendChild(daysGrid);
+        container.appendChild(monthBox);
     });
 }
 
