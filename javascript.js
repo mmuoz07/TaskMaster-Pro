@@ -9,13 +9,14 @@ function mostrar(id) {
     const target = document.getElementById(id);
     if (target) target.classList.add('active');
     
+    // Al entrar a pendientes, intentamos cargar desde la DB
     if (id === 'pendientes') cargarTareasDesdeDB();
     if (id === 'completadas') renderCompletadas();
 }
 
 // 2. FUNCIONES DEL CALENDARIO
 function generarCalendarioCompleto() {
-    const container = document.getElementById('calendar2026Full'); // ID corregido
+    const container = document.getElementById('calendar2026Full'); 
     if (!container) return;
 
     const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
@@ -44,7 +45,7 @@ function generarCalendarioCompleto() {
                 const dIso = String(d).padStart(2, '0');
                 fechaSQL = `2026-${mIso}-${dIso}`;
                 
-                const label = document.getElementById('selectedDateText'); // ID corregido
+                const label = document.getElementById('selectedDateText'); 
                 if (label) label.innerText = fechaSeleccionada;
                 
                 document.getElementById('calendarWrapper').classList.add('hidden'); 
@@ -61,7 +62,8 @@ function toggleCalendario() {
     if (cal) cal.classList.toggle('hidden');
 }
 
-// 3. LLAMADAS A LA API (NODE.JS)
+// 3. LLAMADAS A LA API (CON SOPORTE DE TOKEN JWT)
+
 async function ejecutarRegistro() {
     const nombre = document.getElementById('regNombre').value;
     const email = document.getElementById('regEmail').value;
@@ -73,6 +75,7 @@ async function ejecutarRegistro() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ nombre_completo: nombre, email_corporativo: email, password: pass })
         });
+        
         if (res.ok) { 
             alert("Usuario registrado."); 
             mostrar('login'); 
@@ -94,22 +97,40 @@ async function ejecutarLogin() {
             body: JSON.stringify({ email_corporativo: email, password: pass })
         });
         
+        // Verificamos si la respuesta es válida antes de procesar JSON
+        if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(errorData.error || "Credenciales inválidas");
+        }
+        
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Credenciales inválidas");
+        
+        // --- CAMBIO CLAVE: GUARDAR EL TOKEN ---
+        if (data.token) {
+            localStorage.setItem('tokenMaster', data.token);
+        }
         
         alert("Bienvenido " + data.usuario); 
         mostrar('menu'); 
-    } catch (e) { alert(e.message); }
+    } catch (e) { 
+        alert(e.message); 
+    }
 }
 
 async function agregarTarea() {
     const input = document.getElementById('taskInput');
     if (!input.value) return alert("Escribe la descripción.");
+    
+    // Recuperamos el token para poder pasar el middleware
+    const token = localStorage.getItem('tokenMaster');
 
     try {
         const res = await fetch('/api/tasks', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` // Enviamos la llave
+            },
             body: JSON.stringify({ descripcion: input.value, fecha_vencimiento: fechaSQL })
         });
 
@@ -117,20 +138,37 @@ async function agregarTarea() {
             input.value = "";
             document.getElementById('selectedDateText').innerText = "Seleccionar fecha";
             mostrar('menu');
+        } else {
+            alert("No tienes permiso o sesión expirada.");
         }
     } catch (e) { alert("Error al guardar tarea."); }
 }
 
 async function cargarTareasDesdeDB() {
+    const token = localStorage.getItem('tokenMaster');
+    
     try {
-        const res = await fetch('/api/tasks');
+        const res = await fetch('/api/tasks', {
+            method: 'GET',
+            headers: { 
+                'Authorization': `Bearer ${token}` // Enviamos la llave
+            }
+        });
+
+        if (!res.ok) {
+            console.error("No autorizado");
+            return;
+        }
+
         const data = await res.json();
         
         tareasPendientes = data.filter(t => t.estado === 'Pendiente');
         tareasCompletadas = data.filter(t => t.estado === 'Completada');
         
         renderPendientes();
-    } catch (e) { console.error("Error al cargar datos"); }
+    } catch (e) { 
+        console.error("Error al cargar datos o JSON inválido"); 
+    }
 }
 
 // 4. RENDERING
@@ -161,6 +199,19 @@ function renderCompletadas() {
         li.innerHTML = `<span>${t.descripcion}</span>`;
         lista.appendChild(li);
     });
+}
+
+// Lógica para completar tarea (Faltaba en tu código base)
+async function completarTarea(id) {
+    const token = localStorage.getItem('tokenMaster');
+    try {
+        // Asumiendo que crearás una ruta para actualizar tareas
+        const res = await fetch(`/api/tasks/${id}`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) cargarTareasDesdeDB();
+    } catch (e) { console.error("Error al completar"); }
 }
 
 window.onload = () => {
