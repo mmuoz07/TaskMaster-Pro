@@ -9,18 +9,13 @@ function mostrar(id) {
     const target = document.getElementById(id);
     if (target) target.classList.add('active');
     
-    if (id === 'pendientes') renderPendientes();
+    if (id === 'pendientes') cargarTareasDesdeDB();
     if (id === 'completadas') renderCompletadas();
 }
 
 // 2. FUNCIONES DEL CALENDARIO
-function toggleCalendar() { 
-    const cal = document.getElementById('calendarContainer');
-    if (cal) cal.classList.toggle('hidden'); 
-}
-
 function generarCalendarioCompleto() {
-    const container = document.getElementById('calendar2026'); 
+    const container = document.getElementById('calendar2026Full'); // ID corregido
     if (!container) return;
 
     const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
@@ -30,7 +25,6 @@ function generarCalendarioCompleto() {
         const monthBox = document.createElement('div');
         monthBox.className = "month-box";
         
-        // CORREGIDO: createElement recibe el nombre del tag sin <>
         const title = document.createElement('h4'); 
         title.innerText = mes;
         monthBox.appendChild(title);
@@ -50,11 +44,10 @@ function generarCalendarioCompleto() {
                 const dIso = String(d).padStart(2, '0');
                 fechaSQL = `2026-${mIso}-${dIso}`;
                 
-                // Aseguramos que el ID coincida con el HTML
-                const label = document.getElementById('selectedDateLabel');
+                const label = document.getElementById('selectedDateText'); // ID corregido
                 if (label) label.innerText = fechaSeleccionada;
                 
-                toggleCalendar(); 
+                document.getElementById('calendarWrapper').classList.add('hidden'); 
             };
             daysGrid.appendChild(day);
         }
@@ -63,14 +56,19 @@ function generarCalendarioCompleto() {
     });
 }
 
-// 3. LLAMADAS A LA API
+function toggleCalendario() {
+    const cal = document.getElementById('calendarWrapper');
+    if (cal) cal.classList.toggle('hidden');
+}
+
+// 3. LLAMADAS A LA API (NODE.JS)
 async function ejecutarRegistro() {
     const nombre = document.getElementById('regNombre').value;
     const email = document.getElementById('regEmail').value;
     const pass = document.getElementById('regPass').value;
 
     try {
-        const res = await fetch('api.php?action=register', {
+        const res = await fetch('/api/auth/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ nombre_completo: nombre, email_corporativo: email, password: pass })
@@ -78,6 +76,9 @@ async function ejecutarRegistro() {
         if (res.ok) { 
             alert("Usuario registrado."); 
             mostrar('login'); 
+        } else {
+            const data = await res.json();
+            alert(data.error || "Error en el registro");
         }
     } catch (e) { alert("Error al conectar con el servidor."); }
 }
@@ -87,19 +88,18 @@ async function ejecutarLogin() {
     const pass = document.getElementById('passUser').value;
 
     try {
-        const res = await fetch('api.php?action=login', {
+        const res = await fetch('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email_corporativo: email, password: pass })
         });
         
-        if (!res.ok) throw new Error("Credenciales inválidas");
-        
         const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Credenciales inválidas");
+        
         alert("Bienvenido " + data.usuario); 
-        await cargarTareasDesdeDB(); 
         mostrar('menu'); 
-    } catch (e) { alert("Error en los datos o servidor."); }
+    } catch (e) { alert(e.message); }
 }
 
 async function agregarTarea() {
@@ -107,16 +107,15 @@ async function agregarTarea() {
     if (!input.value) return alert("Escribe la descripción.");
 
     try {
-        const res = await fetch('api.php?action=tareas', {
+        const res = await fetch('/api/tasks', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ descripcion: input.value, fecha_vencimiento: fechaSQL })
         });
 
         if (res.ok) {
-            await cargarTareasDesdeDB();
             input.value = "";
-            document.getElementById('selectedDateLabel').innerText = "Ninguna";
+            document.getElementById('selectedDateText').innerText = "Seleccionar fecha";
             mostrar('menu');
         }
     } catch (e) { alert("Error al guardar tarea."); }
@@ -124,19 +123,14 @@ async function agregarTarea() {
 
 async function cargarTareasDesdeDB() {
     try {
-        const res = await fetch('api.php?action=tareas');
+        const res = await fetch('/api/tasks');
         const data = await res.json();
         
-        tareasPendientes = data.filter(t => t.estado === 'Pendiente').map(t => ({
-            id: t.id, titulo: t.descripcion, fecha: t.fecha_vencimiento || "Sin fecha"
-        }));
-        
-        tareasCompletadas = data.filter(t => t.estado === 'Completada').map(t => ({
-            id: t.id, titulo: t.descripcion
-        }));
+        tareasPendientes = data.filter(t => t.estado === 'Pendiente');
+        tareasCompletadas = data.filter(t => t.estado === 'Completada');
         
         renderPendientes();
-    } catch (e) { console.log("Error al cargar datos"); }
+    } catch (e) { console.error("Error al cargar datos"); }
 }
 
 // 4. RENDERING
@@ -145,22 +139,16 @@ function renderPendientes() {
     if (!lista) return;
     lista.innerHTML = tareasPendientes.length ? "" : "<p>No hay tareas pendientes</p>";
     
-    tareasPendientes.forEach((t, i) => {
+    tareasPendientes.forEach((t) => {
         const li = document.createElement('li');
         li.innerHTML = `
             <div>
-                <strong>${t.titulo}</strong><br>
-                <small>${t.fecha}</small>
+                <strong>${t.descripcion}</strong><br>
+                <small>${t.fecha_vencimiento || "Sin fecha"}</small>
             </div>
-            <button class="tick-btn" onclick="completarTarea(${i})">✓</button>`;
+            <button class="tick-btn" onclick="completarTarea(${t.id})">✓</button>`;
         lista.appendChild(li);
     });
-}
-
-function completarTarea(i) {
-    const movida = tareasPendientes.splice(i, 1)[0];
-    tareasCompletadas.push(movida);
-    renderPendientes();
 }
 
 function renderCompletadas() {
@@ -170,7 +158,7 @@ function renderCompletadas() {
     
     tareasCompletadas.forEach(t => {
         const li = document.createElement('li');
-        li.innerHTML = `<span>${t.titulo}</span>`;
+        li.innerHTML = `<span>${t.descripcion}</span>`;
         lista.appendChild(li);
     });
 }
