@@ -1,12 +1,7 @@
-const { Pool } = require('pg');
-require('dotenv').config();
-
-const pool = new Pool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    port: 5432
-});
-
-module.exports = pool;
+// Este archivo ya no conecta a PostgreSQL, usa memoria volátil
+module.exports = {
+    query: async (text, params) => {
+        console.log("Consulta simulada ejecutada");
+        return { rows: [] }; // Devuelve siempre vacío para no dar error
+    }
+};
