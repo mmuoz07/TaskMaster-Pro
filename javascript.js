@@ -15,14 +15,11 @@ function mostrar(id) {
 
 // 2. ACCESO DIRECTO (Sin validación real)
 function ejecutarLogin() {
-    // No comprobamos nada, simplemente dejamos pasar
-    alert("Acceso concedido (Modo Demo)");
-    mostrar('menu');
+        mostrar('menu');
 }
 
 function ejecutarRegistro() {
-    alert("Usuario registrado (Modo Demo)");
-    mostrar('login');
+        mostrar('login');
 }
 
 // 3. GESTIÓN DE TAREAS LOCALES
